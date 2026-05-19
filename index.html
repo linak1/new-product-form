@@ -32,7 +32,7 @@
     }
 
     .page {
-      max-width: 1150px;
+      max-width: 1180px;
       margin: 0 auto;
       padding: 28px 16px;
     }
@@ -103,6 +103,10 @@
       display: flex;
       flex-direction: column;
       gap: 7px;
+    }
+
+    .hidden {
+      display: none !important;
     }
 
     label {
@@ -287,10 +291,11 @@
     <div class="top-title">
       <div>
         <h1>Supplier New Product Form</h1>
+        <p>المورد يعبّي البيانات، يعمل معاينة لاسم المنتج، ثم يرسل بعد التأكد.</p>
       </div>
 
       <div class="order-badge">
-        Order No: <span id="orderBadge">GS-</span>
+        Order No: <span id="orderBadge">GS</span>
       </div>
     </div>
 
@@ -301,7 +306,7 @@
 
       <form id="productForm">
         <section class="section-box">
-          <h2> بيانات الفاتورة</h2>
+          <h2>Header / بيانات الفاتورة</h2>
 
           <div class="grid">
             <div class="field">
@@ -318,7 +323,7 @@
               <label>رقم الطلب <span class="required">*</span></label>
 
               <div class="order-input">
-                <span>GS-</span>
+                <span>GS</span>
                 <input id="orderNoSuffix" placeholder="اكتب الرقم فقط" required />
               </div>
             </div>
@@ -326,7 +331,7 @@
         </section>
 
         <section>
-          <h2>تفاصيل المنتج</h2>
+          <h2>Product Details / تفاصيل المنتج</h2>
 
           <div class="grid">
             <div class="field">
@@ -354,29 +359,49 @@
           <h2>ATTRIBUTE / المواصفات</h2>
 
           <div class="grid">
-            <div class="field">
-              <label>الخامة <span class="required">*</span></label>
-              <select id="material" required></select>
+            <div class="field attribute-field" data-attribute="material">
+              <label>الخامة</label>
+              <select id="material"></select>
             </div>
 
-            <div class="field">
-              <label>عدد القطع <span class="required">*</span></label>
-              <select id="pieces" required></select>
+            <div class="field attribute-field" data-attribute="pieces">
+              <label>عدد القطع</label>
+              <select id="pieces"></select>
             </div>
 
-            <div class="field">
-              <label>النوع <span class="required">*</span></label>
-              <select id="type" required></select>
+            <div class="field attribute-field" data-attribute="type">
+              <label>النوع</label>
+              <select id="type"></select>
             </div>
 
-            <div class="field">
-              <label>اللون <span class="required">*</span></label>
-              <select id="color" required></select>
+            <div class="field attribute-field" data-attribute="color">
+              <label>اللون</label>
+              <select id="color"></select>
             </div>
 
-            <div class="field">
-              <label>البراند <span class="required">*</span></label>
-              <select id="brand" required></select>
+            <div class="field attribute-field" data-attribute="brand">
+              <label>البراند</label>
+              <select id="brand"></select>
+            </div>
+
+            <div class="field attribute-field" data-attribute="size">
+              <label>المقاس</label>
+              <select id="size"></select>
+            </div>
+
+            <div class="field attribute-field" data-attribute="volume">
+              <label>الحجم</label>
+              <select id="volume"></select>
+            </div>
+
+            <div class="field attribute-field" data-attribute="stitches">
+              <label>عدد الغرز</label>
+              <select id="stitches"></select>
+            </div>
+
+            <div class="field attribute-field" data-attribute="height">
+              <label>الارتفاع</label>
+              <select id="height"></select>
             </div>
 
             <div class="field">
@@ -436,141 +461,867 @@
     const GOOGLE_SCRIPT_URL = "";
 
     const DATA = {
-      categories: [
-        "طقم لحاف",
-        "أطقم غطاء سرير",
-        "شراشف",
-        "لباد سرير",
-        "حشوة لحاف",
-        "مخدات",
-        "كيس مخدة",
-        "بطانيات",
-        "شالات",
-        "معطرات",
-        "مناشف",
-        "أرواب حمام",
-        "دعاسات",
-        "اكسسوارات حمام",
-        "سليبرات",
-        "أكواب حرارية",
-        "ألعاب أطفال",
-        "كيس لحاف",
-        "مطبخ",
-        "شنط سفر",
-        "سجادات صلاة",
-        "شراشف صلاة",
-        "أخرى"
+      "categories": [
+            "طقم لحاف",
+            "أطقم غطاء سرير",
+            "شراشف",
+            "لباد سرير",
+            "حشوة لحاف",
+            "مخدات",
+            "كيس مخدة",
+            "بطانيات",
+            "شالات",
+            "معطرات",
+            "مناشف",
+            "أرواب حمام",
+            "دعاسات",
+            "اكسسوارات حمام",
+            "سليبرات",
+            "أكواب حرارية",
+            "ألعاب أطفال",
+            "كيس لحاف",
+            "مطبخ",
+            "شنط سفر",
+            "سجادات صلاة",
+            "شراشف صلاة",
+            "أخرى"
       ],
-
-      subcategoryByCategory: {
-        "طقم لحاف": ["كينغ", "كوين", "فل", "توين"],
-        "أطقم غطاء سرير": ["كينغ", "كوين", "فل", "توين"],
-        "شراشف": ["كينغ", "كوين", "فل", "توين"],
-        "لباد سرير": ["كينغ", "كوين", "فل", "توين"],
-        "حشوة لحاف": ["كينغ", "كوين", "فل", "توين"],
-        "مخدات": ["كينغ", "ستاندر", "مربع"],
-        "كيس مخدة": ["كينغ", "ستاندر"],
-        "بطانيات": ["كينغ", "فل"],
-        "معطرات": ["معطر غرف", "فواحات"],
-        "مناشف": ["حمام", "مطبخ", "معطر", "بحر", "أخرى"],
-        "أرواب حمام": ["مفرد", "أطفال", "عرائس"],
-        "دعاسات": ["حمام", "مدخل", "مطبخ", "منزل"],
-        "كيس لحاف": ["كينغ", "كوين", "فل"]
+      "subByCategory": {
+            "طقم لحاف": [
+                  "كينغ",
+                  "كوين",
+                  "فل",
+                  "توين"
+            ],
+            "أطقم غطاء سرير": [
+                  "كينغ",
+                  "كوين",
+                  "فل",
+                  "توين"
+            ],
+            "شراشف": [
+                  "كينغ",
+                  "كوين",
+                  "فل",
+                  "توين"
+            ],
+            "لباد سرير": [
+                  "كينغ",
+                  "كوين",
+                  "فل",
+                  "توين"
+            ],
+            "حشوة لحاف": [
+                  "كينغ",
+                  "كوين",
+                  "فل",
+                  "توين"
+            ],
+            "مخدات": [
+                  "كينغ",
+                  "ستاندرد",
+                  "مربع"
+            ],
+            "كيس مخدة": [
+                  "كينغ",
+                  "ستاندرد"
+            ],
+            "بطانيات": [
+                  "كينغ",
+                  "فل"
+            ],
+            "شالات": [],
+            "معطرات": [
+                  "معطر غرف",
+                  "فواحات"
+            ],
+            "مناشف": [
+                  "حمام",
+                  "مطبخ",
+                  "مطرز",
+                  "بحر",
+                  "أخرى"
+            ],
+            "أرواب حمام": [
+                  "مفرد",
+                  "أطفال",
+                  "عرائس"
+            ],
+            "دعاسات": [
+                  "حمام",
+                  "مدخل",
+                  "مطبخ",
+                  "منزل"
+            ],
+            "اكسسوارات حمام": [],
+            "سليبرات": [],
+            "أكواب حرارية": [],
+            "ألعاب أطفال": [],
+            "كيس لحاف": [
+                  "كينغ",
+                  "كوين",
+                  "فل"
+            ],
+            "مطبخ": [],
+            "شنط سفر": [],
+            "سجادات صلاة": [],
+            "شراشف صلاة": [],
+            "أخرى": []
       },
+      "attrsByCategory": {
+            "طقم لحاف": {
+                  "material": [
+                        "قطن",
+                        "فرو",
+                        "خليط",
+                        "مايكروفايبر"
+                  ],
+                  "pieces": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "10",
+                        "11",
+                        "12",
+                        "13",
+                        "14",
+                        "15"
+                  ],
+                  "type": [
+                        "شتوي",
+                        "صيفي",
+                        "فندقي",
+                        "مطرز",
+                        "عرائسي"
+                  ],
+                  "color": [
+                        "ابيض",
+                        "احمر",
+                        "اخضر",
+                        "اخضر فاتح",
+                        "ازرق",
+                        "ازرق غامق",
+                        "ازرق فاتح",
+                        "اسود",
+                        "اصفر",
+                        "اصفر فاتح",
+                        "اكوا",
+                        "برتقالي",
+                        "بنفسجي",
+                        "بنفسجي فاتح",
+                        "بني",
+                        "بيج",
+                        "بيج فاتح",
+                        "تركواز",
+                        "ذهبي",
+                        "رمادي",
+                        "رمادي فاتح",
+                        "زهري",
+                        "زهري فاتح",
+                        "زيتي",
+                        "سادة",
+                        "سكري",
+                        "عنابي",
+                        "عودي",
+                        "فضي",
+                        "كحلي",
+                        "كحلي فاتح",
+                        "مشمشي",
+                        "ملون",
+                        "وردي برتقالي"
+                  ],
+                  "brand": [
+                        "Big One",
+                        "Boll & Branch",
+                        "Cedar & Rose",
+                        "Costco",
+                        "Finch+Robin",
+                        "Free Earth",
+                        "JCP Penny",
+                        "Nicole Miller",
+                        "Orange Bed & Bath",
+                        "Threshold",
+                        "Under The Stars",
+                        "Venetian",
+                        "wallmart",
+                        "Walmart",
+                        "Waverly",
+                        "Wild Sage"
+                  ]
+            },
+            "مخدات": {
+                  "material": [
+                        "ريش",
+                        "مايكروفايبر",
+                        "خليط",
+                        "ميموري فوم",
+                        "ميموري فوم مجزأة"
+                  ],
+                  "type": [
+                        "عادي",
+                        "فندقي"
+                  ]
+            },
+            "أطقم غطاء سرير": {
+                  "material": [
+                        "قطن",
+                        "خليط",
+                        "مايكروفايبر"
+                  ],
+                  "pieces": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "10",
+                        "11",
+                        "12"
+                  ],
+                  "color": [
+                        "ابيض",
+                        "احمر",
+                        "اخضر",
+                        "ازرق",
+                        "اسود",
+                        "بنفسجي",
+                        "بيج",
+                        "رمادي",
+                        "سكري",
+                        "عودي",
+                        "كحلي",
+                        "ملون"
+                  ],
+                  "brand": [
+                        "Color Phile",
+                        "Nicole Miller",
+                        "Secret Garden",
+                        "Shabby Chic",
+                        "Tahari Home",
+                        "The Big One",
+                        "Wanderlust"
+                  ]
+            },
+            "شراشف": {
+                  "material": [
+                        "قطن",
+                        "مايكروفايبر"
+                  ],
+                  "pieces": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "10"
+                  ],
+                  "type": [
+                        "أطفال",
+                        "سادة",
+                        "مطبوع"
+                  ],
+                  "color": [
+                        "ابيض",
+                        "احمر",
+                        "اخضر",
+                        "اخضر فاتح",
+                        "ازرق",
+                        "ازرق غامق",
+                        "ازرق فاتح",
+                        "اسود",
+                        "اصفر",
+                        "اصفر فاتح",
+                        "اكوا",
+                        "برتقالي",
+                        "بنفسجي",
+                        "بنفسجي فاتح",
+                        "بني",
+                        "بيج",
+                        "بيج فاتح",
+                        "تركواز",
+                        "ذهبي",
+                        "رمادي",
+                        "رمادي فاتح",
+                        "زهري",
+                        "زهري فاتح",
+                        "زيتي",
+                        "سادة",
+                        "سكري",
+                        "عنابي",
+                        "عودي",
+                        "فضي",
+                        "كحلي",
+                        "كحلي فاتح",
+                        "مشمشي",
+                        "ملون",
+                        "وردي برتقالي"
+                  ],
+                  "stitches": [
+                        "100",
+                        "200",
+                        "250",
+                        "300",
+                        "400",
+                        "500",
+                        "600",
+                        "700",
+                        "750",
+                        "800"
+                  ]
+            },
+            "لباد سرير": {
+                  "material": [
+                        "قطن",
+                        "مايكروفايبر"
+                  ],
+                  "height": [
+                        "5 سم",
+                        "1 سم"
+                  ]
+            },
+            "كيس مخدة": {
+                  "material": [
+                        "قطن"
+                  ],
+                  "type": [
+                        "اكسسوارات الرأس",
+                        "سادة",
+                        "مشجر"
+                  ]
+            },
+            "بطانيات": {
+                  "type": [
+                        "سادة",
+                        "مشجر"
+                  ],
+                  "color": [
+                        "ابيض",
+                        "احمر",
+                        "اسود",
+                        "بنفسجي",
+                        "بيج",
+                        "رمادي",
+                        "زهري",
+                        "سكري",
+                        "كحلي"
+                  ]
+            },
+            "شالات": {
+                  "color": [
+                        "ابيض",
+                        "احمر",
+                        "ازرق",
+                        "رمادي",
+                        "زهري",
+                        "كحلي",
+                        "ملون"
+                  ],
+                  "size": [
+                        "فل",
+                        "كينغ"
+                  ]
+            },
+            "معطرات": {
+                  "type": [
+                        "فواحة",
+                        "معطر غرف",
+                        "كروت"
+                  ],
+                  "volume": [
+                        "120 مل",
+                        "200 مل",
+                        "500 مل"
+                  ]
+            },
+            "مناشف": {
+                  "type": [
+                        "سادة",
+                        "مشجر",
+                        "مناديل مكياج"
+                  ],
+                  "color": [
+                        "سكري",
+                        "ابيض",
+                        "زهري فاتح",
+                        "احمر",
+                        "اكوا",
+                        "رمادي غامق",
+                        "زهري",
+                        "ازرق فاتح",
+                        "بنفسجي فاتح",
+                        "ازرق",
+                        "اصفر فاتح",
+                        "عنابي",
+                        "اخضر",
+                        "برتقالي",
+                        "بيج",
+                        "رمادي",
+                        "كحلي",
+                        "بنفسجي",
+                        "رمادي فاتح",
+                        "ملون",
+                        "بني",
+                        "AVANTI CROWN",
+                        "AVANTI BOUQUET",
+                        "AVANTI MANDALA",
+                        "AVANTI GREEN",
+                        "AVANTI AUTUMN",
+                        "Plants Embroidery",
+                        "تركواز",
+                        "اخضر فاتح"
+                  ],
+                  "size": [
+                        "89*178",
+                        "86 × 172 سم",
+                        "50 × 101 سم",
+                        "30 × 30 سم",
+                        "62×125 سم",
+                        "75×163 سم",
+                        "70 × 140 سم",
+                        "90 * 150 سم",
+                        "76*137",
+                        "76*164",
+                        "170*85",
+                        "85*150",
+                        "70*130",
+                        "30*50",
+                        "86*172",
+                        "70*140",
+                        "50*100",
+                        "50 * 90 سم",
+                        "61 * 122 سم",
+                        "46 * 71 سم",
+                        "64 * 32 سم",
+                        "28*16 سم",
+                        "64*32",
+                        "180x90 سم",
+                        "165x81 سم",
+                        "61x122 سم",
+                        "160x80 سم",
+                        "165 * 81 سم",
+                        "160 * 70 سم",
+                        "91 * 138 سم",
+                        "100 * 180 سم",
+                        "70 * 140 سم",
+                        "90 * 170 سم",
+                        "91x138",
+                        "91x182",
+                        "101x183",
+                        "101.6x182",
+                        "172x86"
+                  ]
+            },
+            "أرواب حمام": {
+                  "color": [
+                        "سكري",
+                        "ابيض",
+                        "بيج",
+                        "زهري فاتح",
+                        "اكوا غامق",
+                        "رمادي",
+                        "زهري",
+                        "ازرق",
+                        "بنفسجي",
+                        "اخضر",
+                        "رمادي فاتح",
+                        "كحلي غامق",
+                        "كحلي فاتح",
+                        "اصفر فاتح",
+                        "تركواز",
+                        "بنفسجي غامق",
+                        "كحلي",
+                        "احمر",
+                        "برتقالي",
+                        "بني",
+                        "ازرق فاتح",
+                        "بيج فاتح",
+                        "ISLAND HOODED",
+                        "UNICORN HOODED",
+                        "UNICORN N HOODED",
+                        "CHICKEN HOODED",
+                        "LADY FROG HOODED",
+                        "MONSTER HOODED",
+                        "TIGER HOODED",
+                        "RABIT HOODED",
+                        "ICE CREAM HOODED",
+                        "FROG 2 HOODED",
+                        "BEAR 2 HOODED",
+                        "ZUMBI 2 HOODED",
+                        "PENGUIN 2 HOODED",
+                        "BEAR-BROWN 2 HOODED",
+                        "PAND 2 HOODED",
+                        "FROG3 HOODED",
+                        "MONKEY3 HOODED",
+                        "DOG3 HOODED",
+                        "SHEEP3 HOODED",
+                        "REINDEER3 HOODED",
+                        "CAT2 HOODED",
+                        "STAR HOODED",
+                        "RAINBOW HEART HOODED",
+                        "FROG4 HOODED",
+                        "COW HOODED",
+                        "UNICORN2 HOODED",
+                        "TIGER2 HOODED",
+                        "SNAIL HOODED",
+                        "HIPPO4 HOODED",
+                        "MONSTER2 HOODED",
+                        "WATER MALON HOODED",
+                        "PANDA3 HOODED",
+                        "CANGROO HOODED",
+                        "SUNFLOWER HOODED",
+                        "DUCK 1 HOODED",
+                        "DUCK 2 HOODED",
+                        "STRAWBERRY HOODED",
+                        "UNICORN 3 HOODED",
+                        "RABBIT CREAM HOODED",
+                        "BABY BEAR PINK HOODED",
+                        "LION PEACH HOODED",
+                        "PRINCESS PINK HOODED",
+                        "UNICORN LILAC HOODED",
+                        "BUNNY LILAC HOODED",
+                        "BUNNY LILAC 10 HOODED",
+                        "BUNNY LILAC 14 HOODED",
+                        "BUNNY LILAC -6 HOODED",
+                        "SHARK SEA BLUE HOODED",
+                        "RINO ORANGE HOODED",
+                        "RINO ORANGE -10 HOODED",
+                        "RINO ORANGE -14 HOODED",
+                        "RINO ORANGE -6 HOODED",
+                        "DINO GREEN HOODED",
+                        "DINO GREEN -10 HOODED",
+                        "DINO GREEN-14 HOODED",
+                        "DINO GREEN -6 HOODED",
+                        "ELEPHANT BLUE HOODED",
+                        "WHALE BLUE HOODED",
+                        "WHALE BLUE-10 HOODED",
+                        "WHALE BLUE-14 HOODED",
+                        "WHALE BLUE-6 HOODED",
+                        "UNICORN WHITE HOODED",
+                        "UNICORN WHITE-10 HOODED",
+                        "UNICORN WHITE-14 HOODED",
+                        "UNICORN WHITE-6 HOODED",
+                        "WHITE BEAR WRAP",
+                        "WHITE WOLF WRAP",
+                        "WHITE OWL WRAP",
+                        "WHITE FOX WRAP",
+                        "Dinosaur Kids Towel",
+                        "Koala Kids Towel",
+                        "Lion Kids Towel",
+                        "Alligator Kids Towel",
+                        "Pink Dino Kids Towel",
+                        "Shark Kids Towel",
+                        "Unicorn Kids Towel",
+                        "Puppy Kids Towel",
+                        "Cheetah Kids Towel",
+                        "MONSTER",
+                        "GOAT",
+                        "HIPPO",
+                        "FOX",
+                        "DINO",
+                        "UNICORN",
+                        "HIPO3",
+                        "CREAM-CREAM",
+                        "GRAY-POWDER",
+                        "BAIGE-CREAM",
+                        "CREAM-LIGHT",
+                        "CREAM-ROSE",
+                        "BEIGE-CREAM",
+                        "LIGHTGREY-CREAM",
+                        "MARLENE",
+                        "HELENSTONE",
+                        "JULIETCREAM",
+                        "RIVERDE",
+                        "CARISSA",
+                        "BRETTA",
+                        "BARBERY",
+                        "GOSETTE",
+                        "BRIANNA",
+                        "HENNA",
+                        "JAMAICA"
+                  ],
+                  "size": [
+                        "6",
+                        "10",
+                        "14",
+                        "(L/XL)",
+                        "(LARGE)",
+                        "(MEDUIM)",
+                        "(S/M)",
+                        "(S-M)",
+                        "(SMALL)",
+                        "(X/S)",
+                        "(XS/S)",
+                        "10-12",
+                        "14-16",
+                        "6-8",
+                        "L/XL",
+                        "مقاس واحد"
+                  ]
+            },
+            "دعاسات": {
+                  "color": [
+                        "زهري",
+                        "سكري",
+                        "بيج",
+                        "احمر",
+                        "ابيض",
+                        "ازرق فاتح",
+                        "رمادي فاتح",
+                        "ازرق",
+                        "زهري فاتح",
+                        "رمادي",
+                        "أسود"
+                  ],
+                  "size": [
+                        "60 * 43 سم",
+                        "60 × 60 سم, 60 × 91 سم",
+                        "86 * 53 سم",
+                        "17 * 24 انش",
+                        "30 * 50 انش"
+                  ]
+            },
+            "اكسسوارات حمام": {
+                  "pieces": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "10"
+                  ]
+            },
+            "سليبرات": {
+                  "type": [
+                        "شتوي",
+                        "صيفي"
+                  ],
+                  "color": [
+                        "أبيض + وردي",
+                        "ابيض",
+                        "البيج",
+                        "عاجي",
+                        "الأحمر والعاجي",
+                        "الأزرق والعاجي",
+                        "أسود وعاجي",
+                        "اسود",
+                        "زهري",
+                        "رمادي",
+                        "أوف وايت",
+                        "وردي + رمادي + عاجي",
+                        "عاجي + أخضر + كحلي",
+                        "بني",
+                        "براون36",
+                        "تان",
+                        "البحرية",
+                        "أرجواني",
+                        "ازرق",
+                        "اخضر",
+                        "البرتقالي",
+                        "خَوخ",
+                        "ددوب بيج",
+                        "أرنوب زهرة",
+                        "أرنوب أصفر",
+                        "أرنوب أحمر",
+                        "خنفساء ازرق",
+                        "خنفساء اصفر",
+                        "برتقالة",
+                        "ليمونة",
+                        "زهرة",
+                        "اصفر",
+                        "غزال ازرق",
+                        "غزال بيج",
+                        "بطوط زهرة",
+                        "بطوطوط",
+                        "بطوط أورنج",
+                        "بطوط ازرق",
+                        "زهرى وابيض",
+                        "رمادي فراشة وزهري",
+                        "ددوب رمادي",
+                        "ددوب بني",
+                        "خنفساء اخضر",
+                        "ديناصور ازرق",
+                        "الديناصورات",
+                        "نعناع",
+                        "ازرق.فاتح",
+                        "بيج",
+                        "كحلي",
+                        "سكري",
+                        "بني فاتح",
+                        "ديجي",
+                        "بنفسجي فاتح",
+                        "جمل",
+                        "أبيض-جملي",
+                        "أبيض وردي",
+                        "أبيض-رمادي",
+                        "أبيض-أسود",
+                        "زهري فاتح"
+                  ],
+                  "size": [
+                        "36-37",
+                        "38-39",
+                        "40-41",
+                        "SMALL",
+                        "MIDUME",
+                        "36",
+                        "38",
+                        "40",
+                        "44-45",
+                        "42-43",
+                        "37-38",
+                        "39-40",
+                        "24-25",
+                        "26-27",
+                        "28-29",
+                        "38-29"
+                  ]
+            },
+            "أكواب حرارية": {
+                  "type": [
+                        "Bottle",
+                        "TUMBER WITH STRAW",
+                        "TUMBLERS"
+                  ],
+                  "color": [
+                        "اسود",
+                        "ازرق",
+                        "عاجي",
+                        "البرتقالي",
+                        "زهري",
+                        "اصفر",
+                        "ملون",
+                        "أرجواني",
+                        "لافندر",
+                        "لون القرنفل",
+                        "البحرية",
+                        "ذهب",
+                        "قوس قزح",
+                        "احمر",
+                        "برتقالي",
+                        "ابيض",
+                        "بنفسجي",
+                        "اكوا",
+                        "كحلي",
+                        "ذهبي",
+                        "برتقالي غامق"
+                  ],
+                  "volume": [
+                        "709 مل",
+                        "414 مل",
+                        "1.18 لتر",
+                        "90 مل",
+                        "710 مل",
+                        "591 مل"
+                  ]
+            },
+            "ألعاب أطفال": {
+                  "type": [
+                        "BEAR",
+                        "SMOOSHIE",
+                        "قرطاسية"
+                  ]
+            },
+            "كيس لحاف": {
+                  "pieces": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "10"
+                  ],
+                  "stitches": [
+                        "200",
+                        "300",
+                        "400",
+                        "500",
+                        "600",
+                        "700",
+                        "800"
+                  ]
+            },
+            "مطبخ": {
+                  "type": [
+                        "أطقم سفرة",
+                        "أطقم ملاعق",
+                        "أواني منزلية",
+                        "فناجين قهوة"
+                  ]
+            },
+            "شنط سفر": {
+                  "size": [
+                        "S",
+                        "M",
+                        "L",
+                        "XL",
+                        "20",
+                        "24",
+                        "XS",
+                        "30",
+                        "36",
+                        "28"
+                  ]
+            },
+            "سجادات صلاة": {
+                  "type": [
+                        "مطرزة",
+                        "أندونيسي",
+                        "روضة",
+                        "أطفال",
+                        "صيني",
+                        "سوري",
+                        "تركي",
+                        "محراب",
+                        "ميموري فوم",
+                        "حرير",
+                        "مخمل",
+                        "تركية"
+                  ]
+            },
+            "شراشف صلاة": {
+                  "type": [
+                        "قطن",
+                        "اطفال",
+                        "مطرز"
+                  ]
+            },
+            "حشوة لحاف": {},
+            "أخرى": {}
+      }
+};
 
-      materials: [
-        "قطن",
-        "فرو",
-        "خليط",
-        "مايكروفايبر",
-        "NA"
-      ],
-
-      pieces: [
-        "قطعة1",
-        "2قطعة",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "11",
-        "12",
-        "13",
-        "14",
-        "15",
-        "NA"
-      ],
-
-      types: [
-        "شتوي",
-        "صيفي",
-        "فندقي",
-        "معطر",
-        "عرائسي"
-      ],
-
-      colors: [
-        "أبيض",
-        "احمر",
-        "اخضر",
-        "اخضر فاتح",
-        "أزرق",
-        "أزرق غامق",
-        "ازرق فاتح",
-        "اسود",
-        "اصفر",
-        "اصفر فاتح",
-        "اكوا",
-        "برتقالي",
-        "بنفسجي",
-        "بنفسجي فاتح",
-        "بني",
-        "بيج",
-        "بيج فاتح",
-        "تركواز",
-        "ذهبي",
-        "رمادي",
-        "رمادي فاتح",
-        "زهري",
-        "زهري فاتح",
-        "زيتي",
-        "سادة",
-        "سكري",
-        "عنابي",
-        "عودي",
-        "فضي",
-        "كحلي",
-        "كحلي فاتح",
-        "مشمشي",
-        "ملون",
-        "وردي برتقالي",
-        "NA"
-      ],
-
-      brands: [
-        "Big One",
-        "Boll & Branch",
-        "Cedar & Rose",
-        "Costco",
-        "Finch+Robin",
-        "Free Earth",
-        "JCP Penny",
-        "Nicole Miller",
-        "Orange Bed & Bath",
-        "Threshold",
-        "Under The Stars",
-        "Venetian",
-        "wallmart",
-        "Walmart",
-        "Waverly",
-        "Wild Sage",
-        "NA"
-      ]
-    };
+    const ATTRIBUTE_KEYS = [
+      "material",
+      "pieces",
+      "type",
+      "color",
+      "brand",
+      "size",
+      "volume",
+      "stitches",
+      "height"
+    ];
 
     const $ = (id) => document.getElementById(id);
 
@@ -586,6 +1337,10 @@
       type: $("type"),
       color: $("color"),
       brand: $("brand"),
+      size: $("size"),
+      volume: $("volume"),
+      stitches: $("stitches"),
+      height: $("height"),
       productName: $("productName")
     };
 
@@ -617,18 +1372,19 @@
       });
     }
 
+    function clean(value) {
+      return String(value || "").trim();
+    }
+
     function initDropdowns() {
       addOptions(fields.category, DATA.categories, "Select category");
       addOptions(fields.subcategory, [], "Select category first");
-      addOptions(fields.material, DATA.materials, "Select material");
-      addOptions(fields.pieces, DATA.pieces, "Select pieces");
-      addOptions(fields.type, DATA.types, "Select type");
-      addOptions(fields.color, DATA.colors, "Select color");
-      addOptions(fields.brand, DATA.brands, "Select brand");
-    }
 
-    function clean(value) {
-      return String(value || "").trim();
+      ATTRIBUTE_KEYS.forEach((key) => {
+        const wrapper = document.querySelector(`[data-attribute="${key}"]`);
+        wrapper.classList.add("hidden");
+        addOptions(fields[key], [], "Select");
+      });
     }
 
     function getOrderNo() {
@@ -637,6 +1393,23 @@
 
     function updateOrderBadge() {
       $("orderBadge").textContent = getOrderNo();
+    }
+
+    function updateAttributesForCategory(category) {
+      const attrs = DATA.attrsByCategory[category] || {};
+
+      ATTRIBUTE_KEYS.forEach((key) => {
+        const wrapper = document.querySelector(`[data-attribute="${key}"]`);
+        const options = attrs[key] || [];
+
+        if (options.length > 0) {
+          wrapper.classList.remove("hidden");
+          addOptions(fields[key], options, "Select");
+        } else {
+          wrapper.classList.add("hidden");
+          addOptions(fields[key], [], "Select");
+        }
+      });
     }
 
     /*
@@ -680,6 +1453,10 @@
         type: clean(fields.type.value),
         color: clean(fields.color.value),
         brand: clean(fields.brand.value),
+        size: clean(fields.size.value),
+        volume: clean(fields.volume.value),
+        stitches: clean(fields.stitches.value),
+        height: clean(fields.height.value),
         productName: clean(fields.productName.value),
         finalProductName: clean(finalNameText.textContent || finalNameInput.value),
         createdAt: new Date().toISOString()
@@ -754,13 +1531,16 @@
       editNameBtn.textContent = "تعديل";
 
       addOptions(fields.subcategory, [], "Select category first");
+      updateAttributesForCategory("");
     }
 
     fields.category.addEventListener("change", () => {
       const selectedCategory = fields.category.value;
-      const subcategories = DATA.subcategoryByCategory[selectedCategory] || ["NA"];
 
+      const subcategories = DATA.subByCategory[selectedCategory] || ["NA"];
       addOptions(fields.subcategory, subcategories, "Select subcategory");
+
+      updateAttributesForCategory(selectedCategory);
     });
 
     fields.orderNoSuffix.addEventListener("input", () => {
@@ -809,6 +1589,7 @@
       message.classList.remove("visible");
 
       addOptions(fields.subcategory, [], "Select category first");
+      updateAttributesForCategory("");
     });
 
     initDropdowns();
