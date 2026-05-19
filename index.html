@@ -1418,31 +1418,31 @@
       مثال:
       طقم لحاف كينغ| 2 قطعة ARCH
     */
-    function buildProductName() {
-      const categoryNameForFinal =
-        fields.category.value === "أطقم غطاء سرير"
-        ? "طقم غطاء سرير"
-        : fields.category.value;
-      
-      const categoryPart = [
-        fields.category.value,
-        fields.subcategory.value
-      ].map(clean).filter(Boolean).join(" ");
+function buildProductName() {
+  const categoryNameForFinal =
+    fields.category.value === "أطقم غطاء سرير"
+      ? "طقم غطاء سرير"
+      : fields.category.value;
 
-      const piecesValue = clean(fields.pieces.value);
-      const piecesText = piecesValue && piecesValue !== "NA"
-        ? piecesValue + " قطعة"
-        : "";
+  const categoryPart = [
+    categoryNameForFinal,
+    fields.subcategory.value
+  ].map(clean).filter(Boolean).join(" ");
 
-      const productPart = [
-        piecesText,
-        fields.productName.value
-      ].map(clean).filter(Boolean).join(" ");
+  const piecesValue = clean(fields.pieces.value);
+  const piecesText = piecesValue && piecesValue !== "NA"
+    ? piecesValue + " قطعة"
+    : "";
 
-      return [categoryPart, productPart]
-        .filter(Boolean)
-        .join("| ");
-    }
+  const productPart = [
+    piecesText,
+    fields.productName.value
+  ].map(clean).filter(Boolean).join(" ");
+
+  return [categoryPart, productPart]
+    .filter(Boolean)
+    .join("| ");
+}
 
     function getFormData() {
       return {
