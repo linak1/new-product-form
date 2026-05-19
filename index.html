@@ -291,7 +291,6 @@
     <div class="top-title">
       <div>
         <h1>Supplier New Product Form</h1>
-        <p>المورد يعبّي البيانات، يعمل معاينة لاسم المنتج، ثم يرسل بعد التأكد.</p>
       </div>
 
       <div class="order-badge">
@@ -306,7 +305,7 @@
 
       <form id="productForm">
         <section class="section-box">
-          <h2>Header / بيانات الفاتورة</h2>
+          <h2>بيانات الفاتورة</h2>
 
           <div class="grid">
             <div class="field">
@@ -1420,6 +1419,11 @@
       طقم لحاف كينغ| 2 قطعة ARCH
     */
     function buildProductName() {
+      const categoryNameForFinal =
+        fields.category.value === "أطقم غطاء سرير"
+         ? "طقم غطاء سرير"
+        : fields.category.value;
+      
       const categoryPart = [
         fields.category.value,
         fields.subcategory.value
