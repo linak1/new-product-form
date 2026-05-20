@@ -291,10 +291,11 @@
     <div class="top-title">
       <div>
         <h1>Supplier New Product Form</h1>
+        <p>المورد يعبّي البيانات، يعمل معاينة لاسم المنتج، ثم يرسل بعد التأكد.</p>
       </div>
 
       <div class="order-badge">
-        Order No: <span id="orderBadge">GS</span>
+        Order No: <span id="orderBadge">GS-</span>
       </div>
     </div>
 
@@ -305,7 +306,7 @@
 
       <form id="productForm">
         <section class="section-box">
-          <h2>بيانات الفاتورة</h2>
+          <h2>Header / بيانات الفاتورة</h2>
 
           <div class="grid">
             <div class="field">
@@ -322,7 +323,7 @@
               <label>رقم الطلب <span class="required">*</span></label>
 
               <div class="order-input">
-                <span>GS</span>
+                <span>GS-</span>
                 <input id="orderNoSuffix" placeholder="اكتب الرقم فقط" required />
               </div>
             </div>
@@ -347,7 +348,7 @@
 
             <div class="field">
               <label>SUBCATEGORY <span class="required">*</span></label>
-              <select id="subcategory" required>
+              <select id="subcategory">
                 <option value="">Select category first</option>
               </select>
             </div>
@@ -1377,6 +1378,8 @@
 
     function initDropdowns() {
       addOptions(fields.category, DATA.categories, "Select category");
+      fields.subcategory.required = false;
+      fields.subcategory.disabled = true;
       addOptions(fields.subcategory, [], "Select category first");
 
       ATTRIBUTE_KEYS.forEach((key) => {
@@ -1418,31 +1421,31 @@
       مثال:
       طقم لحاف كينغ| 2 قطعة ARCH
     */
-function buildProductName() {
-  const categoryNameForFinal =
-    fields.category.value === "أطقم غطاء سرير"
-      ? "طقم غطاء سرير"
-      : fields.category.value;
+    function buildProductName() {
+      const categoryNameForFinal =
+        fields.category.value === "أطقم غطاء سرير"
+          ? "طقم غطاء سرير"
+          : fields.category.value;
 
-  const categoryPart = [
-    categoryNameForFinal,
-    fields.subcategory.value
-  ].map(clean).filter(Boolean).join(" ");
+      const categoryPart = [
+        categoryNameForFinal,
+        fields.subcategory.value
+      ].map(clean).filter(Boolean).join(" ");
 
-  const piecesValue = clean(fields.pieces.value);
-  const piecesText = piecesValue && piecesValue !== "NA"
-    ? piecesValue + " قطعة"
-    : "";
+      const piecesValue = clean(fields.pieces.value);
+      const piecesText = piecesValue && piecesValue !== "NA"
+        ? piecesValue + " قطعة"
+        : "";
 
-  const productPart = [
-    piecesText,
-    fields.productName.value
-  ].map(clean).filter(Boolean).join(" ");
+      const productPart = [
+        piecesText,
+        fields.productName.value
+      ].map(clean).filter(Boolean).join(" ");
 
-  return [categoryPart, productPart]
-    .filter(Boolean)
-    .join("| ");
-}
+      return [categoryPart, productPart]
+        .filter(Boolean)
+        .join("| ");
+    }
 
     function getFormData() {
       return {
@@ -1468,6 +1471,12 @@ function buildProductName() {
     }
 
     function showPreview() {
+      if (fields.subcategory.required && !fields.subcategory.value) {
+        alert("اختاري SUBCATEGORY أولاً");
+        fields.subcategory.focus();
+        return;
+      }
+
       const finalName = buildProductName();
 
       finalNameText.textContent = finalName;
@@ -1534,15 +1543,25 @@ function buildProductName() {
       finalNameText.style.display = "block";
       editNameBtn.textContent = "تعديل";
 
+      fields.subcategory.required = false;
+      fields.subcategory.disabled = true;
       addOptions(fields.subcategory, [], "Select category first");
       updateAttributesForCategory("");
     }
 
     fields.category.addEventListener("change", () => {
       const selectedCategory = fields.category.value;
+      const subcategories = DATA.subByCategory[selectedCategory] || [];
 
-      const subcategories = DATA.subByCategory[selectedCategory] || ["NA"];
-      addOptions(fields.subcategory, subcategories, "Select subcategory");
+      if (subcategories.length > 0) {
+        fields.subcategory.disabled = false;
+        fields.subcategory.required = true;
+        addOptions(fields.subcategory, subcategories, "Select subcategory");
+      } else {
+        fields.subcategory.required = false;
+        fields.subcategory.disabled = true;
+        addOptions(fields.subcategory, [], "No subcategory");
+      }
 
       updateAttributesForCategory(selectedCategory);
     });
@@ -1592,6 +1611,8 @@ function buildProductName() {
       cancelPreviewBtn.style.display = "none";
       message.classList.remove("visible");
 
+      fields.subcategory.required = false;
+      fields.subcategory.disabled = true;
       addOptions(fields.subcategory, [], "Select category first");
       updateAttributesForCategory("");
     });
