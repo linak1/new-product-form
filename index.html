@@ -119,6 +119,32 @@
       color: var(--danger);
     }
 
+    .select-add-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .select-add-row select {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .add-option-btn {
+      height: 44px;
+      white-space: nowrap;
+      padding: 0 12px;
+      border-radius: 12px;
+      background: #e0f2fe;
+      color: #075985;
+      border: 1px solid #bae6fd;
+      font-size: 13px;
+    }
+
+    .add-option-btn:hover {
+      background: #bae6fd;
+    }
+
     input,
     select {
       height: 44px;
@@ -361,47 +387,74 @@
           <div class="grid">
             <div class="field attribute-field" data-attribute="material">
               <label>الخامة</label>
-              <select id="material"></select>
+              <div class="select-add-row">
+                <select id="material"></select>
+                <button type="button" class="add-option-btn" data-add-attribute="material">إضافة جديد</button>
+              </div>
             </div>
 
             <div class="field attribute-field" data-attribute="pieces">
               <label>عدد القطع</label>
-              <select id="pieces"></select>
+              <div class="select-add-row">
+                <select id="pieces"></select>
+                <button type="button" class="add-option-btn" data-add-attribute="pieces">إضافة جديد</button>
+              </div>
             </div>
 
             <div class="field attribute-field" data-attribute="type">
               <label>النوع</label>
-              <select id="type"></select>
+              <div class="select-add-row">
+                <select id="type"></select>
+                <button type="button" class="add-option-btn" data-add-attribute="type">إضافة جديد</button>
+              </div>
             </div>
 
             <div class="field attribute-field" data-attribute="color">
               <label>اللون</label>
-              <select id="color"></select>
+              <div class="select-add-row">
+                <select id="color"></select>
+                <button type="button" class="add-option-btn" data-add-attribute="color">إضافة جديد</button>
+              </div>
             </div>
 
             <div class="field attribute-field" data-attribute="brand">
               <label>البراند</label>
-              <select id="brand"></select>
+              <div class="select-add-row">
+                <select id="brand"></select>
+                <button type="button" class="add-option-btn" data-add-attribute="brand">إضافة جديد</button>
+              </div>
             </div>
 
             <div class="field attribute-field" data-attribute="size">
               <label>المقاس</label>
-              <select id="size"></select>
+              <div class="select-add-row">
+                <select id="size"></select>
+                <button type="button" class="add-option-btn" data-add-attribute="size">إضافة جديد</button>
+              </div>
             </div>
 
             <div class="field attribute-field" data-attribute="volume">
               <label>الحجم</label>
-              <select id="volume"></select>
+              <div class="select-add-row">
+                <select id="volume"></select>
+                <button type="button" class="add-option-btn" data-add-attribute="volume">إضافة جديد</button>
+              </div>
             </div>
 
             <div class="field attribute-field" data-attribute="stitches">
               <label>عدد الغرز</label>
-              <select id="stitches"></select>
+              <div class="select-add-row">
+                <select id="stitches"></select>
+                <button type="button" class="add-option-btn" data-add-attribute="stitches">إضافة جديد</button>
+              </div>
             </div>
 
             <div class="field attribute-field" data-attribute="height">
               <label>الارتفاع</label>
-              <select id="height"></select>
+              <div class="select-add-row">
+                <select id="height"></select>
+                <button type="button" class="add-option-btn" data-add-attribute="height">إضافة جديد</button>
+              </div>
             </div>
 
             <div class="field">
@@ -1397,14 +1450,57 @@
       $("orderBadge").textContent = getOrderNo();
     }
 
+    function getCustomOptions(category, key) {
+      const allCustomOptions = JSON.parse(localStorage.getItem("customAttributeOptions") || "{}");
+      return allCustomOptions?.[category]?.[key] || [];
+    }
+
+    function saveCustomOption(category, key, value) {
+      const allCustomOptions = JSON.parse(localStorage.getItem("customAttributeOptions") || "{}");
+
+      if (!allCustomOptions[category]) {
+        allCustomOptions[category] = {};
+      }
+
+      if (!allCustomOptions[category][key]) {
+        allCustomOptions[category][key] = [];
+      }
+
+      if (!allCustomOptions[category][key].includes(value)) {
+        allCustomOptions[category][key].push(value);
+      }
+
+      localStorage.setItem("customAttributeOptions", JSON.stringify(allCustomOptions));
+    }
+
+    function mergeOptions(originalOptions, customOptions) {
+      const merged = [];
+      const seen = new Set();
+
+      [...originalOptions, ...customOptions].forEach((option) => {
+        const value = clean(option);
+
+        if (!value || seen.has(value)) {
+          return;
+        }
+
+        seen.add(value);
+        merged.push(value);
+      });
+
+      return merged;
+    }
+
     function updateAttributesForCategory(category) {
       const attrs = DATA.attrsByCategory[category] || {};
 
       ATTRIBUTE_KEYS.forEach((key) => {
         const wrapper = document.querySelector(`[data-attribute="${key}"]`);
-        const options = attrs[key] || [];
+        const originalOptions = attrs[key] || [];
+        const customOptions = category ? getCustomOptions(category, key) : [];
+        const options = mergeOptions(originalOptions, customOptions);
 
-        if (options.length > 0) {
+        if (options.length > 0 || category) {
           wrapper.classList.remove("hidden");
           addOptions(fields[key], options, "Select");
         } else {
@@ -1414,23 +1510,64 @@
       });
     }
 
-    /*
-      الصيغة النهائية المطلوبة:
-      CATEGORY SUBCATEGORY| عدد القطع قطعة اسم المنتج
+    function addNewAttributeOption(key) {
+      const selectedCategory = clean(fields.category.value);
 
-      مثال:
-      طقم لحاف كينغ| 2 قطعة ARCH
+      if (!selectedCategory) {
+        alert("اختاري CATEGORY أولاً");
+        fields.category.focus();
+        return;
+      }
+
+      const label = document.querySelector(`[data-attribute="${key}"] label`)?.textContent || "القيمة";
+      const newValue = clean(prompt(`اكتبي ${label} الجديدة:`));
+
+      if (!newValue) {
+        return;
+      }
+
+      saveCustomOption(selectedCategory, key, newValue);
+      updateAttributesForCategory(selectedCategory);
+      fields[key].value = newValue;
+    }
+
+    /*
+      قواعد اسم المنتج النهائي:
+      - الافتراضي: CATEGORY SUBCATEGORY| عدد القطع قطعة اسم المنتج
+      - أطقم غطاء سرير تظهر في الاسم النهائي: طقم غطاء سرير
+      - معطرات: يضاف الحجم قبل |
+      - مناشف / أرواب حمام / دعاسات: يضاف المقاس واللون قبل |
     */
     function buildProductName() {
-      const categoryNameForFinal =
-        fields.category.value === "أطقم غطاء سرير"
-          ? "طقم غطاء سرير"
-          : fields.category.value;
+      const originalCategory = clean(fields.category.value);
 
-      const categoryPart = [
+      const categoryNameForFinal =
+        originalCategory === "أطقم غطاء سرير"
+          ? "طقم غطاء سرير"
+          : originalCategory;
+
+      const beforePipeParts = [
         categoryNameForFinal,
         fields.subcategory.value
-      ].map(clean).filter(Boolean).join(" ");
+      ];
+
+      if (originalCategory === "معطرات") {
+        beforePipeParts.push(fields.volume.value);
+      }
+
+      if (
+        originalCategory === "مناشف" ||
+        originalCategory === "أرواب حمام" ||
+        originalCategory === "دعاسات"
+      ) {
+        beforePipeParts.push(fields.size.value);
+        beforePipeParts.push(fields.color.value);
+      }
+
+      const categoryPart = beforePipeParts
+        .map(clean)
+        .filter((value) => value && value !== "NA")
+        .join(" ");
 
       const piecesValue = clean(fields.pieces.value);
       const piecesText = piecesValue && piecesValue !== "NA"
@@ -1615,6 +1752,12 @@
       fields.subcategory.disabled = true;
       addOptions(fields.subcategory, [], "Select category first");
       updateAttributesForCategory("");
+    });
+
+    document.querySelectorAll("[data-add-attribute]").forEach((button) => {
+      button.addEventListener("click", () => {
+        addNewAttributeOption(button.dataset.addAttribute);
+      });
     });
 
     initDropdowns();
