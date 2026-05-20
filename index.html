@@ -1581,8 +1581,15 @@
       const productPart = [
         piecesText,
         fields.productName.value
-      ].map(clean).filter(Boolean).join(" ");
-
+      ];
+      if (originalCategory === "طقم لحاف") {
+        productPartValues.push(fields.color.value);
+      }
+      const productPart = productPartValues
+        .map(clean)
+        .filter((value) => value && value !== "NA")
+        .join(" ");
+      
       return [categoryPart, productPart]
         .filter(Boolean)
         .join("| ");
