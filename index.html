@@ -1506,9 +1506,11 @@
         */
         if (options.length > 0) {
           wrapper.classList.remove("hidden");
+          fields[key].required = true;
           addOptions(fields[key], options, "Select");
         } else {
           wrapper.classList.add("hidden");
+          fields[key].required = false;
           addOptions(fields[key], [], "Select");
         }
       });
