@@ -119,6 +119,10 @@
       color: var(--danger);
     }
 
+    .dynamic-required-star {
+      color: var(--danger);
+    }
+
     .select-add-row {
       display: flex;
       gap: 8px;
@@ -394,7 +398,7 @@
             </div>
 
             <div class="field attribute-field" data-attribute="pieces">
-              <label>عدد القطع</label>
+              <label>عدد القطع <span class="dynamic-required-star hidden">*</span></label>
               <div class="select-add-row">
                 <select id="pieces"></select>
                 <button type="button" class="add-option-btn" data-add-attribute="pieces">إضافة جديد</button>
@@ -402,7 +406,7 @@
             </div>
 
             <div class="field attribute-field" data-attribute="type">
-              <label>النوع</label>
+              <label>النوع <span class="dynamic-required-star hidden">*</span></label>
               <div class="select-add-row">
                 <select id="type"></select>
                 <button type="button" class="add-option-btn" data-add-attribute="type">إضافة جديد</button>
@@ -410,7 +414,7 @@
             </div>
 
             <div class="field attribute-field" data-attribute="color">
-              <label>اللون</label>
+              <label>اللون <span class="dynamic-required-star hidden">*</span></label>
               <div class="select-add-row">
                 <select id="color"></select>
                 <button type="button" class="add-option-btn" data-add-attribute="color">إضافة جديد</button>
@@ -418,7 +422,7 @@
             </div>
 
             <div class="field attribute-field" data-attribute="brand">
-              <label>البراند</label>
+              <label>البراند <span class="dynamic-required-star hidden">*</span></label>
               <div class="select-add-row">
                 <select id="brand"></select>
                 <button type="button" class="add-option-btn" data-add-attribute="brand">إضافة جديد</button>
@@ -426,7 +430,7 @@
             </div>
 
             <div class="field attribute-field" data-attribute="size">
-              <label>المقاس</label>
+              <label>المقاس <span class="dynamic-required-star hidden">*</span></label>
               <div class="select-add-row">
                 <select id="size"></select>
                 <button type="button" class="add-option-btn" data-add-attribute="size">إضافة جديد</button>
@@ -434,7 +438,7 @@
             </div>
 
             <div class="field attribute-field" data-attribute="volume">
-              <label>الحجم</label>
+              <label>الحجم <span class="dynamic-required-star hidden">*</span></label>
               <div class="select-add-row">
                 <select id="volume"></select>
                 <button type="button" class="add-option-btn" data-add-attribute="volume">إضافة جديد</button>
@@ -442,7 +446,7 @@
             </div>
 
             <div class="field attribute-field" data-attribute="stitches">
-              <label>عدد الغرز</label>
+              <label>عدد الغرز <span class="dynamic-required-star hidden">*</span></label>
               <div class="select-add-row">
                 <select id="stitches"></select>
                 <button type="button" class="add-option-btn" data-add-attribute="stitches">إضافة جديد</button>
@@ -450,7 +454,7 @@
             </div>
 
             <div class="field attribute-field" data-attribute="height">
-              <label>الارتفاع</label>
+              <label>الارتفاع <span class="dynamic-required-star hidden">*</span></label>
               <div class="select-add-row">
                 <select id="height"></select>
                 <button type="button" class="add-option-btn" data-add-attribute="height">إضافة جديد</button>
@@ -1439,6 +1443,12 @@
         const wrapper = document.querySelector(`[data-attribute="${key}"]`);
         wrapper.classList.add("hidden");
         fields[key].required = false;
+
+        const star = wrapper.querySelector(".dynamic-required-star");
+        if (star) {
+          star.classList.add("hidden");
+        }
+
         addOptions(fields[key], [], "Select");
       });
     }
@@ -1510,10 +1520,22 @@
         if (options.length > 0) {
           wrapper.classList.remove("hidden");
           fields[key].required = true;
+
+          const star = wrapper.querySelector(".dynamic-required-star");
+          if (star) {
+            star.classList.remove("hidden");
+          }
+
           addOptions(fields[key], options, "Select");
         } else {
           wrapper.classList.add("hidden");
           fields[key].required = false;
+
+          const star = wrapper.querySelector(".dynamic-required-star");
+          if (star) {
+            star.classList.add("hidden");
+          }
+
           addOptions(fields[key], [], "Select");
         }
       });
