@@ -317,6 +317,7 @@
     <div class="top-title">
       <div>
         <h1>Supplier New Product Form</h1>
+        <p>المورد يعبّي البيانات، يعمل معاينة لاسم المنتج، ثم يرسل بعد التأكد.</p>
       </div>
 
       <div class="order-badge">
@@ -331,7 +332,7 @@
 
       <form id="productForm">
         <section class="section-box">
-          <h2> بيانات الفاتورة</h2>
+          <h2>Header / بيانات الفاتورة</h2>
 
           <div class="grid">
             <div class="field">
@@ -1437,6 +1438,7 @@
       ATTRIBUTE_KEYS.forEach((key) => {
         const wrapper = document.querySelector(`[data-attribute="${key}"]`);
         wrapper.classList.add("hidden");
+        fields[key].required = false;
         addOptions(fields[key], [], "Select");
       });
     }
@@ -1502,7 +1504,8 @@
         /*
           مهم:
           نعرض الـ ATTRIBUTE فقط إذا كان عنده خيارات لهذه الفئة.
-          إذا الفئة لا تحتوي هذا الـ ATTRIBUTE، نخفيه.
+          وإذا ظهر للمورد يكون إجباري.
+          إذا الفئة لا تحتوي هذا الـ ATTRIBUTE، نخفيه ونلغي الإجباري.
         */
         if (options.length > 0) {
           wrapper.classList.remove("hidden");
@@ -1580,18 +1583,20 @@
         ? piecesValue + " قطعة"
         : "";
 
-      const productPart = [
+      const productPartValues = [
         piecesText,
         fields.productName.value
       ];
+
       if (originalCategory === "طقم لحاف") {
         productPartValues.push(fields.color.value);
       }
+
       const productPart = productPartValues
         .map(clean)
         .filter((value) => value && value !== "NA")
         .join(" ");
-      
+
       return [categoryPart, productPart]
         .filter(Boolean)
         .join("| ");
@@ -1625,6 +1630,17 @@
         alert("اختاري SUBCATEGORY أولاً");
         fields.subcategory.focus();
         return;
+      }
+
+      for (const key of ATTRIBUTE_KEYS) {
+        const wrapper = document.querySelector(`[data-attribute="${key}"]`);
+
+        if (!wrapper.classList.contains("hidden") && fields[key].required && !fields[key].value) {
+          const label = wrapper.querySelector("label")?.textContent || "المواصفة";
+          alert(`اختاري ${label} أولاً`);
+          fields[key].focus();
+          return;
+        }
       }
 
       const finalName = buildProductName();
