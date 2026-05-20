@@ -1499,7 +1499,12 @@
         const customOptions = category ? getCustomOptions(category, key) : [];
         const options = mergeOptions(originalOptions, customOptions);
 
-        if (options.length > 0 || category) {
+        /*
+          مهم:
+          نعرض الـ ATTRIBUTE فقط إذا كان عنده خيارات لهذه الفئة.
+          إذا الفئة لا تحتوي هذا الـ ATTRIBUTE، نخفيه.
+        */
+        if (options.length > 0) {
           wrapper.classList.remove("hidden");
           addOptions(fields[key], options, "Select");
         } else {
