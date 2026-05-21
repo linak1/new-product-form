@@ -1761,8 +1761,8 @@
       }
 
       const label = document.querySelector(`[data-attribute="${key}"] label`)?.textContent || "القيمة";
-      const newValue = clean(prompt(`اكتبي ${label} الجديدة:`));
-
+      const cleanLabel = clean(label).replace("*", "").trim();
+      const newValue = clean(prompt(`ادخل ${cleanLabel} الجديدة`));
       if (!newValue) {
         return;
       }
