@@ -673,7 +673,7 @@
       "categories": [
             "طقم لحاف",
             "أطقم غطاء سرير",
-            "شراشف",
+            "طقم شراشف",
             "لباد سرير",
             "حشوة لحاف",
             "مخدات",
@@ -1762,11 +1762,19 @@
 
       const label = document.querySelector(`[data-attribute="${key}"] label`)?.textContent || "القيمة";
       const cleanLabel = clean(label).replace("*", "").trim();
-      const newValue = clean(prompt(`ادخل ${cleanLabel} الجديدة`));
+      
+      const masculineAttributes = ["النوع", "اللون", "البراند"];
+      const suffix = masculineAttributes.includes(cleanLabel)
+      ? "الجديد"
+      : "الجديدة";
+      
+      const newValue = clean(prompt(`ادخل ${cleanLabel} ${suffix}`));
+      } 
+    
       if (!newValue) {
-        return;
-      }
-
+       return;
+     }
+    
       saveCustomOption(selectedCategory, key, newValue);
       updateAttributesForCategory(selectedCategory);
       fields[key].value = newValue;
