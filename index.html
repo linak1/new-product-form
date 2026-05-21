@@ -673,7 +673,7 @@
       "categories": [
             "طقم لحاف",
             "أطقم غطاء سرير",
-            "طقم شراشف",
+            "شراشف",
             "لباد سرير",
             "حشوة لحاف",
             "مخدات",
@@ -708,7 +708,7 @@
                   "فل",
                   "توين"
             ],
-            "طقم شراشف": [
+            "شراشف": [
                   "كينغ",
                   "كوين",
                   "فل",
@@ -745,10 +745,10 @@
                   "فواحة"
             ],
             "مناشف": [
-                  "منشفة حمام",
-                  "منشفة مطبخ",
-                  "مناشف مطرز",
-                  "منشفة بحر",
+                  "حمام",
+                  "مطبخ",
+                  "مطرز",
+                  "بحر",
                   "أخرى"
             ],
             "أرواب حمام": [
@@ -921,7 +921,7 @@
                         "Wanderlust"
                   ]
             },
-            "طقم شراشف": {
+            "شراشف": {
                   "material": [
                         "قطن",
                         "مايكروفايبر"
@@ -1585,6 +1585,17 @@
       return String(value || "").trim();
     }
 
+    function ltrText(value) {
+      const text = clean(value);
+
+      if (!text) {
+        return "";
+      }
+
+      // LRI + PDI: يحافظ على ترتيب الكلمات الإنجليزية والأرقام داخل النص العربي
+      return `\u2066${text}\u2069`;
+    }
+
     const COLOR_TRANSLATIONS = {
       "أبيض": "White",
       "احمر": "Red",
@@ -1762,19 +1773,26 @@
 
       const label = document.querySelector(`[data-attribute="${key}"] label`)?.textContent || "القيمة";
       const cleanLabel = clean(label).replace("*", "").trim();
-      
-      const masculineAttributes = ["النوع", "اللون", "البراند"];
+
+      const masculineAttributes = [
+        "النوع",
+        "اللون",
+        "البراند",
+        "المقاس",
+        "الحجم",
+        "الارتفاع"
+      ];
+
       const suffix = masculineAttributes.includes(cleanLabel)
-      ? "الجديد"
-      : "الجديدة";
-      
+        ? "الجديد"
+        : "الجديدة";
+
       const newValue = clean(prompt(`ادخل ${cleanLabel} ${suffix}`));
-      
-    
+
       if (!newValue) {
-       return;
-     }
-    
+        return;
+      }
+
       saveCustomOption(selectedCategory, key, newValue);
       updateAttributesForCategory(selectedCategory);
       fields[key].value = newValue;
@@ -1788,7 +1806,8 @@
       - مناشف / أرواب حمام / دعاسات: يضاف المقاس واللون قبل |
     */
     function buildProductName() {
-      const originalCategory = clean(fields.category.value);
+      const selectedCategory = clean(fields.category.value);
+      const originalCategory = selectedCategory === "طقم شراشف" ? "شراشف" : selectedCategory;
 
       const categoryNameForFinal =
         originalCategory === "أطقم غطاء سرير"
@@ -1820,19 +1839,34 @@
 
       const piecesValue = clean(fields.pieces.value);
       const piecesText = piecesValue && piecesValue !== "NA"
-        ? piecesValue + " قطعة"
+        ? piecesValue === "1"
+          ? "1 قطعة"
+          : `${piecesValue} قطع`
         : "";
 
-      const productPartValues = [
-        piecesText,
-        fields.productName.value
-      ];
-
+      /*
+        صيغة طقم اللحاف المطلوبة:
+        CATEGORY SUB| اسم المنتج اللون القطع
+        مثال:
+        طقم لحاف كينغ| ARCH Gold 15 قطع
+      */
       if (originalCategory === "طقم لحاف") {
-        productPartValues.push(getEnglishColor(fields.color.value));
+        const quiltProductPart = [
+          fields.productName.value,
+          getEnglishColor(fields.color.value),
+          piecesText
+        ]
+          .map(clean)
+          .filter((value) => value && value !== "NA")
+          .join(" ");
+
+        return `${categoryPart}| ${ltrText(quiltProductPart)}`;
       }
 
-      const productPart = productPartValues
+      const productPart = [
+        piecesText,
+        fields.productName.value
+      ]
         .map(clean)
         .filter((value) => value && value !== "NA")
         .join(" ");
@@ -1958,7 +1992,8 @@
 
     fields.category.addEventListener("change", () => {
       const selectedCategory = fields.category.value;
-      const subcategories = DATA.subByCategory[selectedCategory] || [];
+      const categoryKey = selectedCategory === "طقم شراشف" ? "شراشف" : selectedCategory;
+      const subcategories = DATA.subByCategory[categoryKey] || [];
 
       if (subcategories.length > 0) {
         fields.subcategory.disabled = false;
@@ -1970,7 +2005,7 @@
         addOptions(fields.subcategory, [], "No subcategory");
       }
 
-      updateAttributesForCategory(selectedCategory);
+      updateAttributesForCategory(categoryKey);
     });
 
     fields.orderNoSuffix.addEventListener("input", () => {
