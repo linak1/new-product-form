@@ -1892,6 +1892,24 @@
           .filter(Boolean)
           .join("| ");
       }
+
+     if (originalCategory === "بطانيات") {
+       const blanketProductPart = [
+         fields.productName.value,
+         getEnglishColor(fields.color.value),
+         piecesText
+  ]
+        .map(clean)
+        .filter((value) => value && value !== "NA")
+        .join(" ");
+
+    return [
+      `بطانية ${clean(fields.subcategory.value)}`,
+      ltrText(blanketProductPart)
+  ]
+     .filter(Boolean)
+     .join("| ");
+}
       /*
         صيغة طقم اللحاف المطلوبة:
         CATEGORY SUB| اسم المنتج اللون القطع
