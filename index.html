@@ -1983,6 +1983,7 @@
         .filter(Boolean)
         .join("| ");
   }
+      
    if (originalCategory === "أكواب حرارية") {
       const cupRightPart = [
         "أكواب حرارية",
@@ -2001,7 +2002,7 @@
        .filter((value) => value && value !== "NA")
        .join(" ");
 
-     return [
+  return [
        cupRightPart,
        ltrText(cupLeftPart)
    ]
