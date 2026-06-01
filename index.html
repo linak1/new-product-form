@@ -1652,8 +1652,12 @@
       if (!value || value === "NA") {
         return "";
       }
+      const normalizedValue = value
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/^أبيض$/, "ابيض");
 
-      return COLOR_TRANSLATIONS[value] || value;
+      return COLOR_TRANSLATIONS[value] || COLOR_TRANSLATIONS[normalizedValue] || value;
     }
 
     function initDropdowns() {
