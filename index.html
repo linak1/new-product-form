@@ -1850,7 +1850,30 @@
           : `${piecesValue} قطع`
         : "";
 
-      /*
+      if (originalCategory === "شراشف") {
+      const stitchesValue = clean(fields.stitches.value);
+      const stitchesText = stitchesValue && stitchesValue !== "NA"
+        ? `${stitchesValue} غرزة`
+      : "";
+
+  const sheetsProductPart = [
+    piecesText,
+    fields.productName.value,
+    getEnglishColor(fields.color.value),
+    stitchesText
+  ]
+    .map(clean)
+    .filter((value) => value && value !== "NA")
+    .join(" ");
+
+  return [
+    `طقم شراشف ${clean(fields.subcategory.value)}`,
+    ltrText(sheetsProductPart)
+  ]
+    .filter(Boolean)
+    .join("| ");
+}
+       /*
         صيغة طقم اللحاف المطلوبة:
         CATEGORY SUB| اسم المنتج اللون القطع
         مثال:
