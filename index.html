@@ -1598,6 +1598,7 @@
     }
 
     const COLOR_TRANSLATIONS = {
+      "ابيض": "White",
       "أبيض": "White",
       "ابيض ": "White",
       "احمر": "Red",
@@ -1832,7 +1833,7 @@
       if (
         originalCategory === "مناشف" ||
         originalCategory === "أرواب حمام" ||
-        
+        originalCategory === "دعاسات"
       ) {
         beforePipeParts.push(fields.size.value);
         beforePipeParts.push(getEnglishColor(fields.color.value));
@@ -1857,23 +1858,24 @@
           : "";
 
         const sheetsProductPart = [
-        piecesText,
-        fields.productName.value,
-        getEnglishColor(fields.color.value),
-        stitchesText
-     ]
-        .map(clean)
-        .filter((value) => value && value !== "NA")
-        .join(" ");
+          piecesText,
+          fields.productName.value,
+          getEnglishColor(fields.color.value),
+          stitchesText
+        ]
+          .map(clean)
+          .filter((value) => value && value !== "NA")
+          .join(" ");
 
-  return [
-    `طقم شراشف ${clean(fields.subcategory.value)}`,
-    ltrText(sheetsProductPart)
-  ]
-    .filter(Boolean)
-    .join("| ");
-}
-       /*
+        return [
+          `طقم شراشف ${clean(fields.subcategory.value)}`,
+          ltrText(sheetsProductPart)
+        ]
+          .filter(Boolean)
+          .join("| ");
+      }
+
+      /*
         صيغة طقم اللحاف المطلوبة:
         CATEGORY SUB| اسم المنتج اللون القطع
         مثال:
