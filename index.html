@@ -1909,6 +1909,23 @@
   ]
      .filter(Boolean)
      .join("| ");
+  }
+
+     if (originalCategory === "شالات") {
+       const shawlProductPart = [
+         fields.productName.value,
+         fields.size.value
+    ]
+        .map(clean)
+        .filter((value) => value && value !== "NA")
+        .join(" ");
+
+    return [
+        "شال",
+        ltrText(shawlProductPart)
+  ]
+       .filter(Boolean)
+       .join("| ");
 }
       /*
         صيغة طقم اللحاف المطلوبة:
