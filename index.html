@@ -1983,7 +1983,32 @@
         .filter(Boolean)
         .join("| ");
   }
-      
+   if (originalCategory === "أكواب حرارية") {
+      const cupRightPart = [
+        "أكواب حرارية",
+         fields.size.value
+    ]
+        .map(clean)
+        .filter((value) => value && value !== "NA")
+        .join(" ");
+
+      const cupLeftPart = [
+       fields.productName.value,
+       fields.type.value,
+       getEnglishColor(fields.color.value)
+   ]
+       .map(clean)
+       .filter((value) => value && value !== "NA")
+       .join(" ");
+
+      return [
+       cupRightPart,
+       ltrText(cupLeftPart)
+   ]
+      .filter(Boolean)
+      .join("| ");
+}
+        
       /*
         صيغة طقم اللحاف المطلوبة:
         CATEGORY SUB| اسم المنتج اللون القطع
