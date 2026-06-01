@@ -1596,30 +1596,8 @@
       // LRI + PDI: يحافظ على ترتيب الكلمات الإنجليزية والأرقام داخل النص العربي
       return `\u2066${text}\u2069`;
     }
-    
-    function getKitchenTypeForFinalName(typeValue) {
-      const value = clean(typeValue);
-
-      const kitchenTypeMap = {
-        "أطقم ملاعق": "طقم ملاعق",
-        "أطقم سفرة": "طقم سفرة",
-        "فناجين قهوة": "طقم فناجين قهوة"
-        "أواني منزلية": "أواني منزلية"
-      };
-
-    if (kitchenTypeMap[value]) {
-      return kitchenTypeMap[value];
-    }
-
-    if (value.startsWith("أ")) {
-      return value.slice(1);
-   }
-
-   return value;
- }
 
     const COLOR_TRANSLATIONS = {
-      "ابيض": "White",
       "أبيض": "White",
       "ابيض ": "White",
       "احمر": "Red",
@@ -1879,138 +1857,23 @@
           : "";
 
         const sheetsProductPart = [
-          piecesText,
-          fields.productName.value,
-          getEnglishColor(fields.color.value),
-          stitchesText
-        ]
-          .map(clean)
-          .filter((value) => value && value !== "NA")
-          .join(" ");
-
-        return [
-          `طقم شراشف ${clean(fields.subcategory.value)}`,
-          ltrText(sheetsProductPart)
-        ]
-          .filter(Boolean)
-          .join("| ");
-      }
-      if (originalCategory === "لباد سرير") {
-        const heightValue = clean(fields.height.value);
-
-        const padProductPart = [
-           fields.productName.value,
-           heightValue
-       ]
-          .map(clean)
-          .filter((value) => value && value !== "NA")
-          .join(" ");
-
-        return[
-          categoryPart,
-          ltrText(padProductPart)
-       ]
-          .filter(Boolean)
-          .join("| ");
-      }
-
-     if (originalCategory === "بطانيات") {
-       const blanketProductPart = [
-         fields.productName.value,
-         getEnglishColor(fields.color.value),
-         piecesText
-  ]
-        .map(clean)
-        .filter((value) => value && value !== "NA")
-        .join(" ");
-
-    return [
-      `بطانية ${clean(fields.subcategory.value)}`,
-      ltrText(blanketProductPart)
-  ]
-     .filter(Boolean)
-     .join("| ");
-  }
-
-     if (originalCategory === "شالات") {
-       const shawlProductPart = [
-         fields.productName.value,
-         getEnglishColor(fields.color.value),
-         fields.size.value
-         ]
-        .map(clean)
-        .filter((value) => value && value !== "NA")
-        .join(" ");
-
-    return [
-        "شال",
-        ltrText(shawlProductPart)
-        ]
-       .filter(Boolean)
-       .join("| ");
-    }
-    if (originalCategory === "معطرات") {
-       const fragranceRightPart = [
-         fields.subcategory.value,
-         fields.volume.value
+        piecesText,
+        fields.productName.value,
+        getEnglishColor(fields.color.value),
+        stitchesText
      ]
-         .map(clean)
-         .filter((value) => value && value !== "NA")
-         .join(" ");
-
-      const fragranceLeftPart = [
-        fields.productName.value
-      ]
         .map(clean)
         .filter((value) => value && value !== "NA")
         .join(" ");
-
-    return [
-       fragranceRightPart,
-       ltrText(fragranceLeftPart)
-   ]
-       .filter(Boolean)
-       .join("| ");
-    }   
-
-    if (originalCategory === "مطبخ") {
-       const kitchenType = getKitchenTypeForFinalName(fields.type.value);
-
-       return [
-        kitchenType,
-        ltrText(fields.productName.value)
-     ]
-        .filter(Boolean)
-        .join("| ");
-  }
-      
-   if (originalCategory === "أكواب حرارية") {
-      const cupRightPart = [
-        "أكواب حرارية",
-         fields.size.value
-    ]
-        .map(clean)
-        .filter((value) => value && value !== "NA")
-        .join(" ");
-
-      const cupLeftPart = [
-       fields.productName.value,
-       fields.type.value,
-       getEnglishColor(fields.color.value)
-   ]
-       .map(clean)
-       .filter((value) => value && value !== "NA")
-       .join(" ");
 
   return [
-       cupRightPart,
-       ltrText(cupLeftPart)
-   ]
-      .filter(Boolean)
-      .join("| ");
+    `طقم شراشف ${clean(fields.subcategory.value)}`,
+    ltrText(sheetsProductPart)
+  ]
+    .filter(Boolean)
+    .join("| ");
 }
-        
-      /*
+       /*
         صيغة طقم اللحاف المطلوبة:
         CATEGORY SUB| اسم المنتج اللون القطع
         مثال:
