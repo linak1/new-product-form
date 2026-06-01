@@ -1874,7 +1874,24 @@
           .filter(Boolean)
           .join("| ");
       }
+      if (originalCategory === "لباد سرير") {
+        const heightValue = clean(fields.height.value);
 
+        const padProductPart = [
+           fields.productName.value,
+           heightValue
+       ]
+          .map(clean)
+          .filter((value) => value && value !== "NA")
+          .join(" ");
+
+        return[
+          categoryPart,
+          ltrText(padProductPart)
+       ]
+          .filter(Boolean)
+          .join("| ");
+      }
       /*
         صيغة طقم اللحاف المطلوبة:
         CATEGORY SUB| اسم المنتج اللون القطع
