@@ -1596,6 +1596,26 @@
       // LRI + PDI: يحافظ على ترتيب الكلمات الإنجليزية والأرقام داخل النص العربي
       return `\u2066${text}\u2069`;
     }
+    
+    function getKitchenTypeForFinalName(typeValue) {
+      const value = clean(typeValue);
+
+      const kitchenTypeMap = {
+        "أطقم ملاعق": "طقم ملاعق",
+        "أطقم سفرة": "طقم سفرة",
+        "فناجين قهوة": "طقم فناجين قهوة"
+      };
+
+    if (kitchenTypeMap[value]) {
+      return kitchenTypeMap[value];
+    }
+
+    if (value.startsWith("أ")) {
+      return value.slice(1);
+   }
+
+   return value;
+ }
 
     const COLOR_TRANSLATIONS = {
       "ابيض": "White",
@@ -1939,7 +1959,7 @@
 
       const fragranceLeftPart = [
         fields.productName.value
-    ]
+      ]
         .map(clean)
         .filter((value) => value && value !== "NA")
         .join(" ");
@@ -1951,6 +1971,18 @@
        .filter(Boolean)
        .join("| ");
     }   
+
+    if (originalCategory === "مطبخ") {
+       const kitchenType = getKitchenTypeForFinalName(fields.type.value);
+
+       return [
+        kitchenType,
+        ltrText(fields.productName.value)
+     ]
+        .filter(Boolean)
+        .join("| ");
+  }
+      
       /*
         صيغة طقم اللحاف المطلوبة:
         CATEGORY SUB| اسم المنتج اللون القطع
