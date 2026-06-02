@@ -1865,7 +1865,7 @@
       }
 
       if (
-        originalCategory === "مناشف" ||
+        
         originalCategory === "أرواب حمام" ||
         originalCategory === "دعاسات"
       ) {
@@ -1928,6 +1928,24 @@
          .join("| ");
 }
 
+      if (originalCategory === "مناشف") {
+        const towelProductPart = [
+        fields.productName.value,
+        getEnglishColor(fields.color.value),
+        fields.size.value
+      ]
+        .map(clean)
+        .filter((value) => value && value !== "NA")
+        .join(" ");
+
+       return [
+        clean(fields.subcategory.value),
+        ltrText(towelProductPart)
+      ]
+        .filter(Boolean)
+        .join("| ");
+  }
+      
       if (originalCategory === "بطانيات") {
         const blanketProductPart = [
          fields.productName.value,
