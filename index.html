@@ -1945,6 +1945,23 @@
         .filter(Boolean)
         .join("| ");
   }
+      if(originalCategory === "سليبرات")
+        const sliperProductPart = [
+          fields.productName.value,
+          getEnglishColor(fields.color.value)
+          fields.size.value
+      ]
+         .map(clean)
+         .filter((value) => value && value !== "NA")
+         .join(" ");
+      
+       return [
+        clean(fields.category.value),
+        ltrText(sliperProductPart)
+        ]
+         .filter(Boolean)
+         .join("| ");
+    }
       
       if (originalCategory === "بطانيات") {
         const blanketProductPart = [
