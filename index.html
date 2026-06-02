@@ -4,7 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Supplier New Product Form</title>
-
+  
+  <script>
+    if (localStorage.getItem("supplierLoggedIn") !== "true") {
+      window.location.href = "login.html";
+    }
+  </script>
+  
   <style>
     :root {
       --bg: #f4f6f9;
@@ -655,8 +661,13 @@
           </button>
 
           <button type="button" id="cancelPreviewBtn" class="btn-danger" style="display: none;">
-            إلغاء المعاينة
+            إلغاء المعاينة  
           </button>
+
+          <button type="button" class="btn-danger" onclick="logout()">
+            تسجيل الخروج
+          </button>
+          
         </div>
       </form>
     </div>
@@ -2093,10 +2104,18 @@
         addNewAttributeOption(button.dataset.addAttribute);
       });
     });
+    
+    function logout() {
+     localStorage.removeItem("supplierLoggedIn");
+     window.location.href = "login.html";
+  }
 
+    
     initDropdowns();
     fields.invoiceDate.value = new Date().toISOString().slice(0, 10);
     updateOrderBadge();
+
+    
   </script>
 </body>
 </html>
