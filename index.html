@@ -1609,6 +1609,26 @@
       return `\u2066${text}\u2069`;
     }
 
+   function getKitchenTypeForFinalName(typeValue) {
+     const value = clean(typeValue);
+
+     const kitchenTypeMap = {
+       "أطقم ملاعق": "طقم ملاعق",
+       "أطقم سفرة": "طقم سفرة",
+       "فناجين قهوة": "طقم فناجين قهوة"
+    };
+
+     if (kitchenTypeMap[value]) {
+      return kitchenTypeMap[value];
+     }
+
+    if (value.startsWith("أ")) {
+     return value.slice(1);
+   }
+
+    return value;
+} 
+
     const COLOR_TRANSLATIONS = {
       "أبيض": "White",
       "ابيض ": "White",
