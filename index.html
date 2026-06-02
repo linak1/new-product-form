@@ -1616,6 +1616,7 @@
        "أطقم ملاعق": "طقم ملاعق",
        "أطقم سفرة": "طقم سفرة",
        "فناجين قهوة": "طقم فناجين قهوة"
+       "أواني منزلية": "أواني منزلية"
     };
 
      if (kitchenTypeMap[value]) {
@@ -1985,6 +1986,18 @@
        .filter(Boolean)
        .join("| ");
 }
+
+      if (originalCategory === "مطبخ") {
+        const kitchenType = getKitchenTypeForFinalName(fields.type.value);
+
+        return [
+          kitchenType,
+          ltrText(fields.productName.value)
+     ]
+          .filter(Boolean)
+          .join("| ");
+}
+      
        /*
         صيغة طقم اللحاف المطلوبة:
         CATEGORY SUB| اسم المنتج اللون القطع
