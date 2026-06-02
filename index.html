@@ -1979,6 +1979,23 @@
       .filter(Boolean)
       .join("| ");
 }
+      if (originalCategory === "دعاسات") {
+        const matProductPart = [
+          fields.productName.value,
+          getEnglishColor(fields.color.value),
+          fields.size.value,
+          ]
+         .map(clean)
+         .filter((value) => value && value !== "NA")
+         .join(" ");
+
+        return [
+          `دعاسة ${clean(fields.subcategory.value)}`,
+          ltrText(matProductPart)
+         ]
+          .filter(Boolean)
+          .join("| ");
+      }
       
       if (originalCategory === "شالات") {
         const shawlProductPart = [
