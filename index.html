@@ -1866,7 +1866,7 @@
 
       if (
         
-        originalCategory === "أرواب حمام" ||
+        
         originalCategory === "دعاسات"
       ) {
         beforePipeParts.push(fields.size.value);
@@ -1961,6 +1961,23 @@
      ]
        .filter(Boolean)
        .join("| ");
+}
+      if (originalCategory === "أرواب حمام") {
+       const robeProductPart = [
+       fields.productName.value,
+       getEnglishColor(fields.color.value),
+       fields.size.value
+    ]
+      .map(clean)
+      .filter((value) => value && value !== "NA")
+      .join(" ");
+
+     return [
+      `روب حمام ${clean(fields.subcategory.value)}`,
+      ltrText(robeProductPart)
+    ]
+      .filter(Boolean)
+      .join("| ");
 }
       
       if (originalCategory === "شالات") {
