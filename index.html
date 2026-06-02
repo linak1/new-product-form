@@ -1888,6 +1888,25 @@
     .join("| ");
 }
 
+      if (originalCategory === "لباد سرير") {
+        const heightValue = clean(fields.height.value);
+
+        const padProductPart = [
+          fields.productName.value,
+          heightValue
+        ]
+          .map(clean)
+          .filter((value) => value && value !== "NA")
+          .join(" ");
+
+        return [
+          categoryPart,
+          ltrText(padProductPart)
+       ]
+         .filter(Boolean)
+         .join("| ");
+}
+
       if (originalCategory === "بطانيات") {
         const blanketProductPart = [
          fields.productName.value,
