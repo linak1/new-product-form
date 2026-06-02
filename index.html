@@ -1947,9 +1947,9 @@
   }
       
       if(originalCategory === "سليبرات"){
-        const sliperProductPart = [
+        const slipperProductPart = [
           fields.productName.value,
-          getEnglishColor(fields.color.value)
+          getEnglishColor(fields.color.value),
           fields.size.value
       ]
          .map(clean)
@@ -1958,7 +1958,7 @@
       
        return [
         clean(fields.category.value),
-        ltrText(sliperProductPart)
+        ltrText(slipperProductPart)
         ]
          .filter(Boolean)
          .join("| ");
