@@ -1927,6 +1927,7 @@
       if (originalCategory === "شالات") {
         const shawlProductPart = [
         fields.productName.value,
+        getEnglishColor(fields.color.value),
         fields.size.value
       ]
         .map(clean)
