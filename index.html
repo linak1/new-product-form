@@ -1941,6 +1941,30 @@
        .filter(Boolean)
        .join("| ");
   }
+
+      if (originalCategory === "معطرات") {
+        const fragranceRightPart = [
+        fields.subcategory.value,
+        fields.volume.value
+     ]
+        .map(clean)
+        .filter((value) => value && value !== "NA")
+        .join(" ");
+
+       const fragranceLeftPart = [
+        fields.productName.value
+     ]
+        .map(clean)
+        .filter((value) => value && value !== "NA")
+        .join(" ");
+
+     return [
+        fragranceRightPart,
+        ltrText(fragranceLeftPart)
+     ]
+       .filter(Boolean)
+       .join("| ");
+}
        /*
         صيغة طقم اللحاف المطلوبة:
         CATEGORY SUB| اسم المنتج اللون القطع
