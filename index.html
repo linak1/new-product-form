@@ -6,9 +6,27 @@
   <title>Supplier New Product Form</title>
   
   <script>
-    if (localStorage.getItem("supplierLoggedIn") !== "true") {
+    const SESSION_TIMEOUT = 60 * 60 * 1000; // ساعة واحدة
+
+    function forceLogout() {
+      localStorage.removeItem("supplierLoggedIn");
+      localStorage.removeItem("supplierLoginTime");
+      localStorage.removeItem("supplierLastActivity");
       window.location.href = "login.html";
     }
+
+    function checkSession() {
+     const isLoggedIn = localStorage.getItem("supplierLoggedIn") === "true";
+     const lastActivity = Number(localStorage.getItem("supplierLastActivity") || 0);
+     const now = Date.now();
+
+     if (!isLoggedIn || !lastActivity || now - lastActivity > SESSION_TIMEOUT) {
+       forceLogout();
+     }
+   }
+
+    checkSession();
+    
   </script>
   
   <style>
@@ -2316,9 +2334,19 @@
     
     function logout() {
      localStorage.removeItem("supplierLoggedIn");
+     localStorage.removeItem("supplierLoginTime");
+     localStorage.removeItem("supplierLastActivity");
      window.location.href = "login.html";
   }
+  const activityEvents = ["click", "keydown", "mousemove", "scroll", "touchstart"];
 
+   activityEvents.forEach((eventName) => {
+    window.addEventListener(eventName, () => {
+      localStorage.setItem("supplierLastActivity", Date.now().toString());
+   });
+ });
+
+  setInterval(checkSession, 60 * 1000);
     
     initDropdowns();
     fields.invoiceDate.value = new Date().toISOString().slice(0, 10);
