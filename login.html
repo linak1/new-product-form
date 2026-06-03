@@ -113,6 +113,9 @@
 
       if (username === USERNAME && password === PASSWORD) {
         localStorage.setItem("supplierLoggedIn", "true");
+        localStorage.setItem("supplierLoginTime", Date.now().toString());
+        localStorage.setItem("supplierLastActivity", Date.now().toString());
+
         window.location.href = "index.html";
       } else {
         document.getElementById("error").style.display = "block";
