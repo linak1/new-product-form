@@ -2201,13 +2201,22 @@
     }
 
     async function sendData() {
+      if (sendBtn.dataset.sending === "true") return;
+      sendBtn.dataset.sending = "true";
+      sendBtn.disabled = true;
+      sendBtn.textContent = "جاري الإرسال...";
+      
       const formData = getFormData();
 
       if (!formData.finalProductName) {
         alert("أولاً تأكد من اسم المنتج النهائي أو اعمل Preview");
+
+        sendBtn.dataset.sending = "false";
+        sendBtn.disabled = false;
+        sendBtn.textContent = "إرسال";
         return;
       }
-
+ 
       /*
         حفظ محلي احتياطي داخل المتصفح.
         هذا لا يغني عن Google Sheets، لكنه يفيد للتجربة.
@@ -2231,7 +2240,10 @@
         } catch (error) {
           console.error(error);
           alert("صار خطأ أثناء الإرسال إلى Google Sheets، لكن تم حفظ نسخة محلية بالمتصفح.");
-          return;
+          } finally {
+           sendBtn.dataset.sending = "false";
+           sendBtn.disabled = false;
+           sendBtn.textContent = "إرسال";
         }
       }
 
