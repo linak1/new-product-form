@@ -83,6 +83,32 @@
       flex: 1;
     }
 
+   .add-product-btn {
+     width: 58px;
+     height: 42px;
+     padding: 0;
+     font-size: 26px;
+     font-weight: bold;
+     line-height: 1;
+     border-radius: 8px;
+   }
+
+   .preview-product-card {
+     background: #ffffff;
+     border: 1px solid #ffb36b;
+     border-radius: 12px;
+     padding: 12px 16px;
+     margin-top: 10px;
+     font-size: 18px;
+     font-weight: bold;
+     text-align: right;
+     color: #000000;
+    }
+
+  .preview-product-card span {
+    color: #0066cc;
+   }
+    
     .brand-logo-img {
       width: 210px;
       max-width: 80%;
@@ -538,10 +564,17 @@
           <h2>تفاصيل المنتج</h2>
 
           <div class="grid">
-            <div class="field">
-              <label>رقم المنتج <span class="required">*</span></label>
-              <input id="productNo" required />
-            </div>
+           <div class="field">
+            <label>رقم المنتج <span class="required">*</span></label>
+            <input id="productNo" required />
+           </div>
+
+           <div class="field">
+            <label>&nbsp;</label>
+            <button type="button" id="addProductBtn" class="btn-primary add-product-btn">
+               +
+            </button>
+           </div>
 
             <div class="field">
               <label> الفئة الرئيسية<span class="required">*</span></label>
@@ -649,6 +682,7 @@
           </div>
 
           <div id="finalNameText" class="final-name"></div>
+          <div id="previewProductsContainer"></div>
 
           <input
             id="finalNameInput"
@@ -1580,6 +1614,8 @@
       productName: $("productName")
     };
 
+    let productsList = [];
+    
     const previewBox = $("previewBox");
     const sendBtn = $("sendBtn");
     const cancelPreviewBtn = $("cancelPreviewBtn");
@@ -2163,12 +2199,76 @@
       };
     }
 
-    function showPreview() {
-      if (fields.subcategory.required && !fields.subcategory.value) {
-        alert("اختاري SUBCATEGORY أولاً");
-        fields.subcategory.focus();
-        return;
-      }
+   async function checkOrderNoExists() {
+     
+   async function checkOrderNoExists() {
+    const orderNo = "GS-" + fields.orderNoSuffix.value.trim();
+
+    if (!fields.orderNoSuffix.value.trim()) {
+     alert("اكتبي رقم الطلب");
+     return true;
+   }
+
+    try {
+     const response = await fetch(GOOGLE_SCRIPT_URL, {
+       method: "POST",
+       body: JSON.stringify({
+        action: "checkOrderNo",
+        orderNo: orderNo
+      })
+    });
+
+     const result = await response.json();
+
+     return result.exists === true;
+
+   } catch (error) {
+     alert("تعذر التحقق من رقم الطلب");
+     return true;
+   }
+ }
+     
+   async function showPreview() {
+    const orderExists = await checkOrderNoExists();
+
+    if (orderExists) {
+     alert("رقم الطلب موجود مسبقًا، الرجاء تغييره");
+     return;
+   }
+
+    if (fields.subcategory.required && !fields.subcategory.value) {
+     alert("اختاري SUBCATEGORY أولاً");
+     fields.subcategory.focus();
+     return;
+   }
+
+    const currentProduct = getCurrentProductData();
+
+    if (currentProduct) {
+     const exists = productsList.some((product) => {
+      return product.productNo === currentProduct.productNo;
+     });
+
+     if (!exists) {
+      productsList.push(currentProduct);
+     }
+   }
+
+    if (!productsList.length) {
+     alert("أضيفي منتج واحد على الأقل");
+     return;
+   }
+
+   previewBox.classList.add("visible");
+   sendBtn.style.display = "inline-block";
+   cancelPreviewBtn.style.display = "inline-block";
+
+   finalNameText.textContent = "";
+   renderPreviewProducts();
+
+   $("summaryDate").textContent = fields.invoiceDate.value;
+   $("summaryOrder").textContent = "GS-" + fields.orderNoSuffix.value;
+ }
 
       for (const key of ATTRIBUTE_KEYS) {
         const wrapper = document.querySelector(`[data-attribute="${key}"]`);
@@ -2196,74 +2296,149 @@
       message.classList.remove("visible");
     }
 
-    async function sendData() {
-      if (sendBtn.dataset.sending === "true") return;
-      sendBtn.dataset.sending = "true";
-      sendBtn.disabled = true;
-      sendBtn.textContent = "جاري الإرسال...";
-      
-      const formData = getFormData();
+     function getCurrentProductData() {
+       const formData = getFormData();
+       const finalName = buildProductName();
 
-      if (!formData.finalProductName) {
-        alert("أولاً تأكد من اسم المنتج النهائي أو اعمل Preview");
-
-        sendBtn.dataset.sending = "false";
-        sendBtn.disabled = false;
-        sendBtn.textContent = "إرسال";
-        return;
+       if (!formData.productNo) {
+        alert("اكتبي رقم المنتج");
+        return null;
       }
- 
-      /*
-        حفظ محلي احتياطي داخل المتصفح.
-        هذا لا يغني عن Google Sheets، لكنه يفيد للتجربة.
-      */
-      const oldData = JSON.parse(localStorage.getItem("supplierProducts") || "[]");
-      localStorage.setItem("supplierProducts", JSON.stringify([formData, ...oldData]));
 
-      /*
-        إرسال إلى Google Sheets إذا تم وضع رابط GOOGLE_SCRIPT_URL.
-      */
-      if (GOOGLE_SCRIPT_URL) {
-        try {
-          await fetch(GOOGLE_SCRIPT_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData)
-          });
-        } catch (error) {
-          console.error(error);
-          alert("صار خطأ أثناء الإرسال إلى Google Sheets، لكن تم حفظ نسخة محلية بالمتصفح.");
-          } finally {
-           sendBtn.dataset.sending = "false";
-           sendBtn.disabled = false;
-           sendBtn.textContent = "إرسال";
+       if (!formData.category) {
+         alert("اختاري الفئة");
+         return null;
         }
-      }
 
-      message.classList.add("visible");
+       if (!formData.productName) {
+         alert("اكتبي اسم المنتج");
+         return null;
+        }
 
-      $("productForm").reset();
-      fields.invoiceDate.value = new Date().toISOString().slice(0, 10);
+       if (!finalName) {
+         alert("تأكدي من اسم المنتج النهائي");
+         return null;
+        }
 
-      updateOrderBadge();
+       formData.finalProductName = finalName;
 
-      previewBox.classList.remove("visible");
-      sendBtn.style.display = "none";
-      cancelPreviewBtn.style.display = "none";
+       return formData;
+     }
 
-      isEditingName = false;
-      finalNameInput.style.display = "none";
-      finalNameText.style.display = "block";
-      editNameBtn.textContent = "تعديل";
+  function addCurrentProductToList() {
+    const productData = getCurrentProductData();
 
-      fields.subcategory.required = false;
-      fields.subcategory.disabled = true;
-      addOptions(fields.subcategory, [], "Select category first");
-      updateAttributesForCategory("");
+    if (!productData) return;
+
+    const exists = productsList.some((product) => {
+      return product.productNo === productData.productNo;
+     });
+
+    if (exists) {
+      alert("هذا المنتج مضاف مسبقًا في نفس الطلب");
+      return;
     }
+
+    productsList.push(productData);
+
+    clearProductFieldsOnly();
+
+    alert("تمت إضافة المنتج");
+   }
+
+   function clearProductFieldsOnly() {
+     fields.productNo.value = "";
+     fields.category.value = "";
+     fields.subcategory.value = "";
+     fields.productName.value = "";
+
+     fields.material.value = "";
+     fields.pieces.value = "";
+     fields.type.value = "";
+     fields.color.value = "";
+     fields.brand.value = "";
+     fields.size.value = "";
+     fields.volume.value = "";
+     fields.stitches.value = "";
+     fields.height.value = "";
+
+     fields.subcategory.required = false;
+     fields.subcategory.disabled = true;
+     addOptions(fields.subcategory, [], "Select category first");
+
+     updateAttributesForCategory("");
+
+     finalNameText.textContent = "";
+     finalNameInput.value = "";
+     }
+
+  function renderPreviewProducts() {
+    const container = document.getElementById("previewProductsContainer");
+
+    container.innerHTML = "";
+
+    productsList.forEach((product, index) => {
+      const div = document.createElement("div");
+      div.className = "preview-product-card";
+      div.innerHTML = `${index + 1}. <span>${product.finalProductName}</span>`;
+      container.appendChild(div);
+   });
+  }
+async function sendData() {
+  if (sendBtn.dataset.sending === "true") return;
+
+  sendBtn.dataset.sending = "true";
+  sendBtn.disabled = true;
+  sendBtn.textContent = "جاري الإرسال...";
+
+  try {
+    if (!productsList.length) {
+      alert("لا يوجد منتجات للإرسال");
+      return;
+    }
+
+    const response = await fetch(GOOGLE_SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        products: productsList
+      })
+    });
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.message || "حدث خطأ أثناء الإرسال");
+    }
+
+    message.classList.add("visible");
+    message.textContent = "تم إرسال كل المنتجات بنجاح";
+
+    productsList = [];
+
+    $("productForm").reset();
+    fields.invoiceDate.value = new Date().toISOString().slice(0, 10);
+
+    updateOrderBadge();
+
+    previewBox.classList.remove("visible");
+    sendBtn.style.display = "none";
+    cancelPreviewBtn.style.display = "none";
+
+    document.getElementById("previewProductsContainer").innerHTML = "";
+
+    fields.subcategory.required = false;
+    fields.subcategory.disabled = true;
+    addOptions(fields.subcategory, [], "Select category first");
+    updateAttributesForCategory("");
+
+  } catch (error) {
+    alert("صار خطأ أثناء الإرسال: " + error.message);
+  } finally {
+    sendBtn.dataset.sending = "false";
+    sendBtn.disabled = false;
+    sendBtn.textContent = "إرسال";
+  }
+}
 
     fields.category.addEventListener("change", () => {
       const selectedCategory = fields.category.value;
@@ -2311,6 +2486,10 @@
 
     sendBtn.addEventListener("click", sendData);
 
+    document
+     .getElementById("addProductBtn")
+     .addEventListener("click", addCurrentProductToList);
+    
     cancelPreviewBtn.addEventListener("click", () => {
       previewBox.classList.remove("visible");
       sendBtn.style.display = "none";
