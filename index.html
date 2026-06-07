@@ -517,10 +517,6 @@
           <h2> بيانات الفاتورة</h2>
 
           <div class="grid">
-            <div class="field">
-              <label>رقم الفاتورة <span class="required">*</span></label>
-              <input id="invoiceNo" required />
-            </div>
 
             <div class="field">
               <label>تاريخ الفاتورة <span class="required">*</span></label>
@@ -660,7 +656,7 @@
           />
 
           <div class="summary-grid">
-            <div>Invoice: <b id="summaryInvoice"></b></div>
+            
             <div>Date: <b id="summaryDate"></b></div>
             <div>Order: <b id="summaryOrder"></b></div>
           </div>
@@ -1566,7 +1562,7 @@
     const $ = (id) => document.getElementById(id);
 
     const fields = {
-      invoiceNo: $("invoiceNo"),
+      
       invoiceDate: $("invoiceDate"),
       orderNoSuffix: $("orderNoSuffix"),
       productNo: $("productNo"),
@@ -2145,7 +2141,7 @@
 
     function getFormData() {
       return {
-        invoiceNo: clean(fields.invoiceNo.value),
+        
         invoiceDate: clean(fields.invoiceDate.value),
         orderNo: getOrderNo(),
         productNo: clean(fields.productNo.value),
@@ -2190,7 +2186,7 @@
       finalNameText.textContent = finalName;
       finalNameInput.value = finalName;
 
-      $("summaryInvoice").textContent = fields.invoiceNo.value;
+      
       $("summaryDate").textContent = fields.invoiceDate.value;
       $("summaryOrder").textContent = getOrderNo();
 
