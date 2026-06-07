@@ -83,6 +83,18 @@
       flex: 1;
     }
 
+   .preview-name-card {
+     background: #ffffff;
+     border: 1px solid #ffd0a3;
+     border-radius: 14px;
+     padding: 12px 16px;
+     margin-top: 10px;
+     font-size: 18px;
+     font-weight: bold;
+     text-align: right;
+     direction: ltr;
+     unicode-bidi: plaintext;
+ }
     .brand-logo-img {
       width: 210px;
       max-width: 80%;
@@ -541,7 +553,13 @@
             <div class="field">
               <label>رقم المنتج <span class="required">*</span></label>
               <input id="productNo" required />
+
+              <label>&nbsp;</label>
+              <button type="button" id="addProductBtn" class="btn-primary" style="width:55px;">
+                +
+              </button>
             </div>
+            
 
             <div class="field">
               <label> الفئة الرئيسية<span class="required">*</span></label>
@@ -649,6 +667,7 @@
           </div>
 
           <div id="finalNameText" class="final-name"></div>
+          <div id="multiPreviewNames"></div>
 
           <input
             id="finalNameInput"
@@ -1580,6 +1599,34 @@
       productName: $("productName")
     };
 
+    let productsList = [];
+
+    function addCurrentPreviewName() {
+     const finalName = buildProductName();
+
+     if (!finalName) {
+      alert("تأكدي من بيانات المنتج أولاً");
+      return;
+    }
+
+    productsList.push({
+     finalProductName: finalName
+   });
+
+    renderMultiPreviewNames();
+ }
+
+  function renderMultiPreviewNames() {
+    const container = document.getElementById("multiPreviewNames");
+    if (!container) return;
+
+    container.innerHTML = productsList
+     .map((product, index) => {
+      return `<div class="preview-name-card">${index + 1}. ${product.finalProductName}</div>`;
+     })
+     .join("");
+}
+
     const previewBox = $("previewBox");
     const sendBtn = $("sendBtn");
     const cancelPreviewBtn = $("cancelPreviewBtn");
@@ -2163,39 +2210,54 @@
       };
     }
 
-    function showPreview() {
-      if (fields.subcategory.required && !fields.subcategory.value) {
-        alert("اختاري SUBCATEGORY أولاً");
-        fields.subcategory.focus();
-        return;
-      }
+function showPreview() {
+  if (fields.subcategory.required && !fields.subcategory.value) {
+    alert("اختاري SUBCATEGORY أولاً");
+    fields.subcategory.focus();
+    return;
+  }
 
-      for (const key of ATTRIBUTE_KEYS) {
-        const wrapper = document.querySelector(`[data-attribute="${key}"]`);
+  for (const key of ATTRIBUTE_KEYS) {
+    const wrapper = document.querySelector(`[data-attribute="${key}"]`);
 
-        if (!wrapper.classList.contains("hidden") && fields[key].required && !fields[key].value) {
-          const label = wrapper.querySelector("label")?.textContent || "المواصفة";
-          alert(`اختاري ${label} أولاً`);
-          fields[key].focus();
-          return;
-        }
-      }
-
-      const finalName = buildProductName();
-
-      finalNameText.textContent = finalName;
-      finalNameInput.value = finalName;
-
-      
-      $("summaryDate").textContent = fields.invoiceDate.value;
-      $("summaryOrder").textContent = getOrderNo();
-
-      previewBox.classList.add("visible");
-      sendBtn.style.display = "inline-block";
-      cancelPreviewBtn.style.display = "inline-block";
-      message.classList.remove("visible");
+    if (!wrapper.classList.contains("hidden") && fields[key].required && !fields[key].value) {
+      const label = wrapper.querySelector("label")?.textContent || "المواصفة";
+      alert(`اختاري ${label} أولاً`);
+      fields[key].focus();
+      return;
     }
+  }
 
+  const finalName = buildProductName();
+
+  if (!finalName) {
+    alert("تأكدي من بيانات المنتج أولاً");
+    return;
+  }
+
+  if (!productsList.length) {
+    productsList.push({
+      finalProductName: finalName
+    });
+  }
+
+  finalNameText.textContent = "";
+  renderMultiPreviewNames();
+
+  finalNameInput.value = productsList
+    .map((product) => product.finalProductName)
+    .join("\n");
+
+  $("summaryDate").textContent = fields.invoiceDate.value;
+  $("summaryOrder").textContent = getOrderNo();
+
+  previewBox.classList.add("visible");
+  sendBtn.style.display = "inline-block";
+  cancelPreviewBtn.style.display = "inline-block";
+  message.classList.remove("visible");
+}
+
+    
     async function sendData() {
       if (sendBtn.dataset.sending === "true") return;
       sendBtn.dataset.sending = "true";
@@ -2359,7 +2421,8 @@
     initDropdowns();
     fields.invoiceDate.value = new Date().toISOString().slice(0, 10);
     updateOrderBadge();
-
+    
+  document.getElementById("addProductBtn").addEventListener("click", addCurrentPreviewName);
     
   </script>
 </body>
