@@ -1821,6 +1821,8 @@ function addCurrentPreviewName() {
     }
 
     let isOrderNoDuplicate = false;
+    let lastCheckedOrderNo = "";
+    let lastOrderNoExists = false;
 
 function checkOrderNoFromSheet(orderNo) {
   return new Promise((resolve) => {
@@ -1861,18 +1863,34 @@ async function validateOrderNoIsNew() {
 
   if (!fields.orderNoSuffix.value) {
     isOrderNoDuplicate = false;
+    lastCheckedOrderNo = "";
+    lastOrderNoExists = false;
+    return true;
+  }
+
+    if (orderNo === lastCheckedOrderNo) {
+    if (lastOrderNoExists) {
+      fields.orderNoSuffix.setCustomValidity("رقم الطلب موجود مسبقاً. الرجاء استخدام رقم طلب جديد.");
+      fields.orderNoSuffix.reportValidity();
+      fields.orderNoSuffix.focus();
+      return false;
+    }
+
     return true;
   }
 
   const exists = await checkOrderNoFromSheet(orderNo);
+  lastCheckedOrderNo = orderNo;
+  lastOrderNoExists = exists;
   isOrderNoDuplicate = exists;
 
   if (exists) {
-    alert("رقم الطلب موجود مسبقاً. الرجاء استخدام رقم طلب جديد.");
+    fields.orderNoSuffix.setCustomValidity("رقم الطلب موجود مسبقاً. الرجاء استخدام رقم طلب جديد.");
     fields.orderNoSuffix.reportValidity();
     fields.orderNoSuffix.focus();
     return false;
   }
+  
   fields.orderNoSuffix.setCustomValidity("");
   return true;
 }
@@ -2441,12 +2459,17 @@ async function showPreview() {
       updateAttributesForCategory(categoryKey);
     });
 
-   fields.orderNoSuffix.addEventListener("input", () => {
-    fields.orderNoSuffix.value = fields.orderNoSuffix.value.replace(/[^0-9]/g, "");
-    fields.orderNoSuffix.setCustomValidity("");
-    isOrderNoDuplicate = false;
-    updateOrderBadge();
-  });
+    fields.orderNoSuffix.addEventListener("input", () => {
+     fields.orderNoSuffix.value = fields.orderNoSuffix.value.replace(/[^0-9]/g, "");
+
+     fields.orderNoSuffix.setCustomValidity("");
+     isOrderNoDuplicate = false;
+
+     lastCheckedOrderNo = "";
+     lastOrderNoExists = false;
+
+     updateOrderBadge();
+   });
 
    
 
