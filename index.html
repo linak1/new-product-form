@@ -299,6 +299,10 @@
       min-height: 58px;
     }
 
+    .final-name:empty {
+      display: none;
+     }
+
     .preview input {
       direction: rtl;
       text-align: right;
@@ -1177,7 +1181,9 @@
                         "91 * 182 سم",
                         "101 * 183 سم",
                         "101.6 * 182 سم",
-                        "172 * 86 سم"
+                        "172 * 86 سم",
+                        "N/A"
+              
                   ]
             },
             "أرواب حمام": {
@@ -1601,30 +1607,60 @@
 
     let productsList = [];
 
-    function addCurrentPreviewName() {
-     const finalName = buildProductName();
+function addCurrentPreviewName() {
+  const finalName = clean(finalNameText.textContent || finalNameInput.value);
 
-     if (!finalName) {
-      alert("تأكدي من بيانات المنتج أولاً");
-      return;
+  if (!finalName) {
+    alert("اعملي Save Preview للمنتج الحالي أولاً");
+    return;
+  }
+
+  productsList.push({
+    finalProductName: finalName
+  });
+
+  renderMultiPreviewNames();
+
+  finalNameText.textContent = "";
+  finalNameInput.value = "";
+
+  fields.productNo.value = "";
+  fields.category.value = "";
+  fields.productName.value = "";
+
+  fields.subcategory.value = "";
+  fields.subcategory.required = false;
+  fields.subcategory.disabled = true;
+  addOptions(fields.subcategory, [], "Select category first");
+
+  ATTRIBUTE_KEYS.forEach((key) => {
+    if (fields[key]) {
+      fields[key].value = "";
+      fields[key].required = false;
     }
+  });
 
-    productsList.push({
-     finalProductName: finalName
-   });
+  updateAttributesForCategory("");
 
-    renderMultiPreviewNames();
- }
+  previewBox.classList.remove("visible");
+  sendBtn.style.display = "none";
+  cancelPreviewBtn.style.display = "none";
 
-  function renderMultiPreviewNames() {
-    const container = document.getElementById("multiPreviewNames");
-    if (!container) return;
+  message.textContent = "تم حفظ المنتج مؤقتاً. يمكنك الآن إدخال منتج جديد لنفس الطلب.";
+  message.classList.add("visible");
 
-    container.innerHTML = productsList
-     .map((product, index) => {
+  fields.productNo.focus();
+}
+
+ function renderMultiPreviewNames() {
+  const container = document.getElementById("multiPreviewNames");
+  if (!container) return;
+
+  container.innerHTML = productsList
+    .map((product, index) => {
       return `<div class="preview-name-card">${index + 1}. ${product.finalProductName}</div>`;
-     })
-     .join("");
+    })
+    .join("");
 }
 
     const previewBox = $("previewBox");
@@ -2235,18 +2271,15 @@ function showPreview() {
     return;
   }
 
-  if (!productsList.length) {
-    productsList.push({
-      finalProductName: finalName
-    });
-  }
-
-  finalNameText.textContent = "";
+  finalNameText.textContent = finalName;
   renderMultiPreviewNames();
 
-  finalNameInput.value = productsList
-    .map((product) => product.finalProductName)
-    .join("\n");
+  const allNames = [
+    ...productsList.map((product) => product.finalProductName),
+    finalName
+  ];
+
+  finalNameInput.value = allNames.join("\n");
 
   $("summaryDate").textContent = fields.invoiceDate.value;
   $("summaryOrder").textContent = getOrderNo();
