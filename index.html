@@ -1611,13 +1611,14 @@
 function addCurrentPreviewName() {
   const finalName = clean(finalNameText.textContent || finalNameInput.value);
 
-  if (!finalName) {
+  if (!finalName || !currentPreviewProduct) {
     alert("اعملي Save Preview للمنتج الحالي أولاً");
     return;
   }
 
-productsList.push(currentPreviewProduct);
-currentPreviewProduct = null;
+  currentPreviewProduct.finalProductName = finalName;
+  productsList.push(currentPreviewProduct);
+  currentPreviewProduct = null;
 
   renderMultiPreviewNames();
 
@@ -2374,79 +2375,79 @@ async function showPreview() {
 }
 
     
-    async function sendData() {
-      if (sendBtn.dataset.sending === "true") return;
-      sendBtn.dataset.sending = "true";
-      sendBtn.disabled = true;
-      sendBtn.textContent = "جاري الإرسال...";
-      
-     const productsToSend = [...productsList];
+async function sendData() {
+  if (sendBtn.dataset.sending === "true") return;
 
-      if (currentPreviewProduct) {
-       productsToSend.push(currentPreviewProduct);
-   }
+  sendBtn.dataset.sending = "true";
+  sendBtn.disabled = true;
+  sendBtn.textContent = "جاري الإرسال...";
 
-        if (!productsToSend.length) {
-        alert("أولاً تأكد من اسم المنتج النهائي أو اعمل Preview");
+  const productsToSend = [...productsList];
 
-        sendBtn.dataset.sending = "false";
-        sendBtn.disabled = false;
-        sendBtn.textContent = "إرسال";
-        return;
-      }
- 
-      /*
-        حفظ محلي احتياطي داخل المتصفح.
-        هذا لا يغني عن Google Sheets، لكنه يفيد للتجربة.
-      */
-      const oldData = JSON.parse(localStorage.getItem("supplierProducts") || "[]");
-      localStorage.setItem("supplierProducts", JSON.stringify([formData, ...oldData]));
+  if (currentPreviewProduct) {
+    productsToSend.push(currentPreviewProduct);
+  }
 
-      /*
-        إرسال إلى Google Sheets إذا تم وضع رابط GOOGLE_SCRIPT_URL.
-      */
-      if (GOOGLE_SCRIPT_URL) {
-        try {
-          await fetch(GOOGLE_SCRIPT_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-             products: productsToSend
-          });
-        } catch (error) {
-          console.error(error);
-          alert("صار خطأ أثناء الإرسال إلى Google Sheets، لكن تم حفظ نسخة محلية بالمتصفح.");
-          } finally {
-           sendBtn.dataset.sending = "false";
-           sendBtn.disabled = false;
-           sendBtn.textContent = "إرسال";
-        }
-      }
+  if (!productsToSend.length) {
+    alert("أولاً تأكد من اسم المنتج النهائي أو اعمل Preview");
 
-      message.classList.add("visible");
+    sendBtn.dataset.sending = "false";
+    sendBtn.disabled = false;
+    sendBtn.textContent = "إرسال";
+    return;
+  }
 
-      $("productForm").reset();
-      fields.invoiceDate.value = new Date().toISOString().slice(0, 10);
+  const oldData = JSON.parse(localStorage.getItem("supplierProducts") || "[]");
+  localStorage.setItem("supplierProducts", JSON.stringify([...productsToSend, ...oldData]));
 
-      updateOrderBadge();
-
-      previewBox.classList.remove("visible");
-      sendBtn.style.display = "none";
-      cancelPreviewBtn.style.display = "none";
-
-      isEditingName = false;
-      finalNameInput.style.display = "none";
-      finalNameText.style.display = "block";
-      editNameBtn.textContent = "تعديل";
-
-      fields.subcategory.required = false;
-      fields.subcategory.disabled = true;
-      addOptions(fields.subcategory, [], "Select category first");
-      updateAttributesForCategory("");
+  if (GOOGLE_SCRIPT_URL) {
+    try {
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          products: productsToSend
+        })
+      });
+    } catch (error) {
+      console.error(error);
+      alert("صار خطأ أثناء الإرسال إلى Google Sheets، لكن تم حفظ نسخة محلية بالمتصفح.");
     }
+  }
+
+  sendBtn.dataset.sending = "false";
+  sendBtn.disabled = false;
+  sendBtn.textContent = "إرسال";
+
+  message.classList.add("visible");
+
+  productsList = [];
+  currentPreviewProduct = null;
+
+  $("productForm").reset();
+  fields.invoiceDate.value = new Date().toISOString().slice(0, 10);
+
+  updateOrderBadge();
+
+  previewBox.classList.remove("visible");
+  sendBtn.style.display = "none";
+  cancelPreviewBtn.style.display = "none";
+
+  isEditingName = false;
+  finalNameInput.value = "";
+  finalNameInput.style.display = "none";
+  finalNameText.textContent = "";
+  finalNameText.style.display = "block";
+  editNameBtn.textContent = "تعديل";
+
+  fields.subcategory.required = false;
+  fields.subcategory.disabled = true;
+  addOptions(fields.subcategory, [], "Select category first");
+  updateAttributesForCategory("");
+}
 
     fields.category.addEventListener("change", () => {
       const selectedCategory = fields.category.value;
