@@ -1606,6 +1606,7 @@
     };
 
     let productsList = [];
+    let currentPreviewProduct = null;
 
 function addCurrentPreviewName() {
   const finalName = clean(finalNameText.textContent || finalNameInput.value);
@@ -1615,9 +1616,8 @@ function addCurrentPreviewName() {
     return;
   }
 
-  productsList.push({
-    finalProductName: finalName
-  });
+productsList.push(currentPreviewProduct);
+currentPreviewProduct = null;
 
   renderMultiPreviewNames();
 
@@ -2353,6 +2353,8 @@ async function showPreview() {
   }
 
   finalNameText.textContent = finalName;
+  currentPreviewProduct = getFormData();
+  currentPreviewProduct.finalProductName = finalName;
   renderMultiPreviewNames();
 
   const allNames = [
@@ -2378,9 +2380,13 @@ async function showPreview() {
       sendBtn.disabled = true;
       sendBtn.textContent = "جاري الإرسال...";
       
-      const formData = getFormData();
+     const productsToSend = [...productsList];
 
-      if (!formData.finalProductName) {
+      if (currentPreviewProduct) {
+       productsToSend.push(currentPreviewProduct);
+   }
+
+        if (!productsToSend.length) {
         alert("أولاً تأكد من اسم المنتج النهائي أو اعمل Preview");
 
         sendBtn.dataset.sending = "false";
@@ -2407,7 +2413,8 @@ async function showPreview() {
             headers: {
               "Content-Type": "application/json"
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify({
+             products: productsToSend
           });
         } catch (error) {
           console.error(error);
