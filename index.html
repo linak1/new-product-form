@@ -1857,6 +1857,8 @@ function checkOrderNoFromSheet(orderNo) {
 async function validateOrderNoIsNew() {
   const orderNo = getOrderNo();
 
+    fields.orderNoSuffix.setCustomValidity("");
+
   if (!fields.orderNoSuffix.value) {
     isOrderNoDuplicate = false;
     return true;
@@ -1867,10 +1869,11 @@ async function validateOrderNoIsNew() {
 
   if (exists) {
     alert("رقم الطلب موجود مسبقاً. الرجاء استخدام رقم طلب جديد.");
+    fields.orderNoSuffix.reportValidity();
     fields.orderNoSuffix.focus();
     return false;
   }
-
+  fields.orderNoSuffix.setCustomValidity("");
   return true;
 }
 
@@ -2440,11 +2443,12 @@ async function showPreview() {
 
    fields.orderNoSuffix.addEventListener("input", () => {
     fields.orderNoSuffix.value = fields.orderNoSuffix.value.replace(/[^0-9]/g, "");
+    fields.orderNoSuffix.setCustomValidity("");
     isOrderNoDuplicate = false;
     updateOrderBadge();
   });
 
-   fields.orderNoSuffix.addEventListener("blur", validateOrderNoIsNew);
+   
 
     $("productForm").addEventListener("submit", (event) => {
       event.preventDefault();
