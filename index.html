@@ -1820,6 +1820,60 @@ function addCurrentPreviewName() {
       $("orderBadge").textContent = getOrderNo();
     }
 
+    let isOrderNoDuplicate = false;
+
+function checkOrderNoFromSheet(orderNo) {
+  return new Promise((resolve) => {
+    if (!GOOGLE_SCRIPT_URL || !orderNo || orderNo === "GS-") {
+      resolve(false);
+      return;
+    }
+
+    const callbackName = "checkOrderNoCallback_" + Date.now();
+
+    window[callbackName] = function(response) {
+      delete window[callbackName];
+      script.remove();
+      resolve(Boolean(response && response.exists));
+    };
+
+    const script = document.createElement("script");
+    script.src =
+      GOOGLE_SCRIPT_URL +
+      "?action=checkOrderNo" +
+      "&orderNo=" + encodeURIComponent(orderNo) +
+      "&callback=" + callbackName;
+
+    script.onerror = function() {
+      delete window[callbackName];
+      script.remove();
+      resolve(false);
+    };
+
+    document.body.appendChild(script);
+  });
+}
+
+async function validateOrderNoIsNew() {
+  const orderNo = getOrderNo();
+
+  if (!fields.orderNoSuffix.value) {
+    isOrderNoDuplicate = false;
+    return true;
+  }
+
+  const exists = await checkOrderNoFromSheet(orderNo);
+  isOrderNoDuplicate = exists;
+
+  if (exists) {
+    alert("رقم الطلب موجود مسبقاً. الرجاء استخدام رقم طلب جديد.");
+    fields.orderNoSuffix.focus();
+    return false;
+  }
+
+  return true;
+}
+
     function getCustomOptions(category, key) {
       const allCustomOptions = JSON.parse(localStorage.getItem("customAttributeOptions") || "{}");
       return allCustomOptions?.[category]?.[key] || [];
@@ -2246,7 +2300,13 @@ function addCurrentPreviewName() {
       };
     }
 
-function showPreview() {
+async function showPreview() {
+  const orderIsNew = await validateOrderNoIsNew();
+
+  if (!orderIsNew) {
+    return;
+  }
+  
   if (fields.subcategory.required && !fields.subcategory.value) {
     alert("اختاري SUBCATEGORY أولاً");
     fields.subcategory.focus();
@@ -2378,10 +2438,13 @@ function showPreview() {
       updateAttributesForCategory(categoryKey);
     });
 
-    fields.orderNoSuffix.addEventListener("input", () => {
-      fields.orderNoSuffix.value = fields.orderNoSuffix.value.replace(/[^0-9]/g, "");
-      updateOrderBadge();
-    });
+   fields.orderNoSuffix.addEventListener("input", () => {
+    fields.orderNoSuffix.value = fields.orderNoSuffix.value.replace(/[^0-9]/g, "");
+    isOrderNoDuplicate = false;
+    updateOrderBadge();
+  });
+
+   fields.orderNoSuffix.addEventListener("blur", validateOrderNoIsNew);
 
     $("productForm").addEventListener("submit", (event) => {
       event.preventDefault();
