@@ -1659,7 +1659,7 @@ function addCurrentPreviewName() {
 
   container.innerHTML = productsList
     .map((product, index) => {
-      return `<div class="preview-name-card">${index + 1}. ${product.finalProductName}</div>`;
+      return `<div class="preview-name-card">${product.finalProductName}</div>`;
     })
     .join("");
 }
