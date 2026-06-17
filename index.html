@@ -1657,6 +1657,7 @@ function addCurrentPreviewName() {
 
   renderMultiPreviewNames();
 
+  previewProductNo.textContent = "";
   finalNameText.textContent = "";
   finalNameInput.value = "";
 
@@ -1678,7 +1679,7 @@ function addCurrentPreviewName() {
 
   updateAttributesForCategory("");
 
-  previewBox.classList.remove("visible");
+  previewBox.classList.add("visible");
   sendBtn.style.display = "inline-block";
   cancelPreviewBtn.style.display = "inline-block";
 
