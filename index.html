@@ -283,6 +283,18 @@
       display: block;
     }
 
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 50px;
+    }
+
+   .checkbox-label input {
+      width: auto;
+      height: auto;
+    }
+
     .preview-head {
       display: flex;
       align-items: center;
@@ -681,6 +693,29 @@
                 <button type="button" class="add-option-btn" data-add-attribute="height">إضافة جديد</button>
               </div>
             </div>
+
+            <div class="field hidden" id="addSheetWrapper">
+              <label class="checkbox-label">
+               <input type="checkbox" id="addSheet" />
+               مع إضافة شرشف
+              </label>
+           </div>
+
+           <div class="field hidden" id="sheetPiecesWrapper">
+             <label>عدد قطع الشرشف <span class="required">*</span></label>
+             <select id="sheetPieces">
+              <option value="">Select</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+            </select>
+           </div>
+
+         <div class="field hidden" id="sheetColorWrapper">
+           <label>لون الشرشف <span class="required">*</span></label>
+           <select id="sheetColor">
+            <option value="">Select</option>
+           </select>
+         </div>
 
             <div class="field">
               <label>اسم المنتج <span class="required">*</span></label>
@@ -1637,7 +1672,10 @@
       volume: $("volume"),
       stitches: $("stitches"),
       height: $("height"),
-      productName: $("productName")
+      productName: $("productName"),
+      addSheet: $("addSheet"),
+      sheetPieces: $("sheetPieces"),
+      sheetColor: $("sheetColor")
     };
 
     let productsList = [];
@@ -2018,6 +2056,31 @@ async function validateOrderNoIsNew() {
       });
     }
 
+    function updateAddSheetFields(categoryKey) {
+     const isQuilt = categoryKey === "طقم لحاف";
+
+     $("addSheetWrapper").classList.toggle("hidden", !isQuilt);
+
+     if (!isQuilt) {
+      fields.addSheet.checked = false;
+     }
+
+     const showSheetFields = isQuilt && fields.addSheet.checked;
+
+     $("sheetPiecesWrapper").classList.toggle("hidden", !showSheetFields);
+     $("sheetColorWrapper").classList.toggle("hidden", !showSheetFields);
+
+     fields.sheetPieces.required = showSheetFields;
+     fields.sheetColor.required = showSheetFields;
+
+    if (!showSheetFields) {
+     fields.sheetPieces.value = "";
+     fields.sheetColor.value = "";
+   }
+
+     fields.sheetColor.innerHTML = fields.color.innerHTML;
+  }
+
     function addNewAttributeOption(key) {
       const selectedCategory = clean(fields.category.value);
 
@@ -2360,7 +2423,11 @@ async function validateOrderNoIsNew() {
         height: clean(fields.height.value),
         productName: clean(fields.productName.value),
         finalProductName: clean(finalNameText.textContent || finalNameInput.value),
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        addSheet: fields.addSheet.checked ? "نعم" : "",
+        sheetPieces: clean(fields.sheetPieces.value),
+        sheetColor: clean(fields.sheetColor.value),
+        sheetColorEnglish: getEnglishColor(fields.sheetColor.value)
       };
     }
 
@@ -2508,9 +2575,18 @@ async function sendData() {
       }
 
       updateAttributesForCategory(categoryKey);
+      updateAddSheetFields(categoryKey);
+
     });
 
-    fields.orderNoSuffix.addEventListener("input", () => {
+    fields.addSheet.addEventListener("change", () => {
+     const selectedCategory = fields.category.value;
+     const categoryKey = selectedCategory === "طقم شراشف" ? "شراشف" : selectedCategory;
+
+     updateAddSheetFields(categoryKey);
+  });
+
+     fields.orderNoSuffix.addEventListener("input", () => {
      fields.orderNoSuffix.value = fields.orderNoSuffix.value.replace(/[^0-9]/g, "");
 
      fields.orderNoSuffix.setCustomValidity("");
