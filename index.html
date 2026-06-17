@@ -305,11 +305,23 @@
       min-height: 58px;
     }
     
-    .product-no-preview {
-      margin-bottom: 8px;
-      direction: ltr;
-      text-align: right;
+   .preview-name-row {
+     display: flex;
+     gap: 8px;
+     align-items: stretch;
+     direction: rtl;
+    }
+
+   .product-no-preview {
+     width: 140px;
+     flex: 0 0 140px;
+     direction: ltr;
+     text-align: center;
      }
+
+    .product-name-preview {
+      flex: 1;
+    }
 
     .final-name:empty {
       display: none;
@@ -686,8 +698,10 @@
           </div>
 
           
+          <div class="preview-name-row">
           <div id="previewProductNo" class="final-name product-no-preview"></div>
-          <div id="finalNameText" class="final-name"></div>
+          <div id="finalNameText" class="final-name product-name-preview"></div>
+          </div>
           <div id="multiPreviewNames"></div>
 
           <input
