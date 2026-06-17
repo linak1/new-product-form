@@ -440,6 +440,10 @@
       color: #ffffff;
     }
 
+    .saved-product-row {
+      margin-top: 8px;
+    }
+
     .add-option-btn {
       height: 50px;
       background: #ff7a00;
@@ -1689,8 +1693,13 @@ function addCurrentPreviewName() {
   if (!container) return;
 
   container.innerHTML = productsList
-    .map((product, index) => {
-      return `<div class="preview-name-card">${product.finalProductName}</div>`;
+    .map((product) => {
+      return `
+        <div class="preview-name-row saved-product-row">
+          <div class="final-name product-no-preview">${product.productNo || ""}</div>
+          <div class="final-name product-name-preview">${product.finalProductName || ""}</div>
+        </div>
+      `;
     })
     .join("");
 }
