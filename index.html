@@ -304,6 +304,12 @@
       border: 1px solid #ffd0a3;
       min-height: 58px;
     }
+    
+    .product-no-preview {
+      margin-bottom: 8px;
+      direction: ltr;
+      text-align: right;
+     }
 
     .final-name:empty {
       display: none;
@@ -679,6 +685,8 @@
             <button id="editNameBtn" type="button" class="btn-secondary">تعديل</button>
           </div>
 
+          
+          <div id="previewProductNo" class="final-name product-no-preview"></div>
           <div id="finalNameText" class="final-name"></div>
           <div id="multiPreviewNames"></div>
 
@@ -1677,6 +1685,7 @@ function addCurrentPreviewName() {
     const sendBtn = $("sendBtn");
     const cancelPreviewBtn = $("cancelPreviewBtn");
     const finalNameText = $("finalNameText");
+    const previewProductNo = $("previewProductNo");
     const finalNameInput = $("finalNameInput");
     const editNameBtn = $("editNameBtn");
     const message = $("message");
@@ -2362,6 +2371,7 @@ async function showPreview() {
     return;
   }
 
+  previewProductNo.textContent = clean(fields.productNo.value);
   finalNameText.textContent = finalName;
   currentPreviewProduct = getFormData();
   currentPreviewProduct.finalProductName = finalName;
