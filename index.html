@@ -223,6 +223,12 @@
       background: #ffe2c2;
     }
 
+    .add-product-row {
+      display: flex;
+      justify-content: flex-start;
+      margin: -10px 0 20px;
+     }
+
     input,
     select {
       height: 50px;
@@ -558,10 +564,7 @@
               <label>رقم المنتج <span class="required">*</span></label>
               <input id="productNo" required />
 
-              <label>&nbsp;</label>
-              <button type="button" id="addProductBtn" class="btn-primary" style="width:55px;">
-                +
-              </button>
+             
             </div>
             
 
@@ -662,6 +665,12 @@
               <input id="productName" placeholder="مثال: ARCH" required />
             </div>
           </div>
+
+          <div class="add-product-row">
+            <button type="button" id="addProductBtn" class="btn-primary" style="width:55px;">
+               +
+             </button>
+           </div>
         </section>
 
         <section id="previewBox" class="preview">
