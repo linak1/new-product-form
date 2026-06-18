@@ -15,6 +15,7 @@
       window.location.href = "login.html";
     }
 
+    
     function checkSession() {
      const isLoggedIn = localStorage.getItem("supplierLoggedIn") === "true";
      const lastActivity = Number(localStorage.getItem("supplierLastActivity") || 0);
@@ -1704,7 +1705,7 @@ function addCurrentPreviewName() {
   const finalName = clean(finalNameText.textContent || finalNameInput.value);
 
   if (!finalName || !currentPreviewProduct) {
-    alert("اعملي Save Preview للمنتج الحالي أولاً");
+    alert("اضغط Save Preview للمنتج الحالي أولاً");
     return;
   }
 
