@@ -705,21 +705,35 @@
               </label>
            </div>
 
-           <div class="field hidden" id="sheetPiecesWrapper">
-             <label>عدد قطع الشرشف <span class="required">*</span></label>
-             <select id="sheetPieces">
-              <option value="">Select</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-            </select>
-           </div>
+    <div class="field hidden" id="sheetPiecesWrapper">
+      <label>عدد قطع الشرشف <span class="required">*</span></label>
+      <div class="select-add-row">
+        <button type="button" class="add-option-btn" data-add-sheet-option="sheetPieces">إضافة جديد</button>
+        <select id="sheetPieces">
+          <option value="">Select</option>
+        </select>
+      </div>
+     </div>
 
-         <div class="field hidden" id="sheetColorWrapper">
-           <label>لون الشرشف <span class="required">*</span></label>
-           <select id="sheetColor">
-            <option value="">Select</option>
-           </select>
-         </div>
+    <div class="field hidden" id="sheetColorWrapper">
+      <label>لون الشرشف <span class="required">*</span></label>
+      <div class="select-add-row">
+        <button type="button" class="add-option-btn" data-add-sheet-option="sheetColor">إضافة جديد</button>
+        <select id="sheetColor">
+          <option value="">Select</option>
+        </select>
+      </div>
+     </div>
+
+    <div class="field hidden" id="sheetStitchesWrapper">
+      <label>عدد الغرز <span class="required">*</span></label>
+      <div class="select-add-row">
+        <button type="button" class="add-option-btn" data-add-sheet-option="sheetStitches">إضافة جديد</button>
+        <select id="sheetStitches">
+          <option value="">Select</option>
+        </select>
+      </div>
+   </div>
 
             <div class="field">
               <label>اسم المنتج <span class="required">*</span></label>
@@ -1679,7 +1693,8 @@
       productName: $("productName"),
       addSheet: $("addSheet"),
       sheetPieces: $("sheetPieces"),
-      sheetColor: $("sheetColor")
+      sheetColor: $("sheetColor"),
+      sheetStitches: $("sheetStitches")
     };
 
     let productsList = [];
@@ -2061,29 +2076,37 @@ async function validateOrderNoIsNew() {
     }
 
     function updateAddSheetFields(categoryKey) {
-     const isQuilt = categoryKey === "طقم لحاف";
+      const isQuilt = categoryKey === "طقم لحاف";
 
-     $("addSheetWrapper").classList.toggle("hidden", !isQuilt);
+       $("addSheetWrapper").classList.toggle("hidden", !isQuilt);
 
-     if (!isQuilt) {
-      fields.addSheet.checked = false;
-     }
+       if (!isQuilt) {
+        fields.addSheet.checked = false;
+       }
 
-     const showSheetFields = isQuilt && fields.addSheet.checked;
+       const showSheetFields = isQuilt && fields.addSheet.checked;
 
-     $("sheetPiecesWrapper").classList.toggle("hidden", !showSheetFields);
-     $("sheetColorWrapper").classList.toggle("hidden", !showSheetFields);
+       $("sheetPiecesWrapper").classList.toggle("hidden", !showSheetFields);
+       $("sheetColorWrapper").classList.toggle("hidden", !showSheetFields);
+       $("sheetStitchesWrapper").classList.toggle("hidden", !showSheetFields);
 
-     fields.sheetPieces.required = showSheetFields;
-     fields.sheetColor.required = showSheetFields;
+       fields.sheetPieces.required = showSheetFields;
+       fields.sheetColor.required = showSheetFields;
+       fields.sheetStitches.required = showSheetFields;
 
-    if (!showSheetFields) {
-     fields.sheetPieces.value = "";
-     fields.sheetColor.value = "";
-   }
+       if (!showSheetFields) {
+         fields.sheetPieces.value = "";
+         fields.sheetColor.value = "";
+         fields.sheetStitches.value = "";
+       }
+   
+       fields.sheetPieces.innerHTML = fields.pieces.innerHTML;
+       fields.sheetColor.innerHTML = fields.color.innerHTML;
+       fields.sheetStitches.innerHTML = fields.stitches.innerHTML;
+    }
 
-     fields.sheetColor.innerHTML = fields.color.innerHTML;
-  }
+
+    
 
     function addNewAttributeOption(key) {
       const selectedCategory = clean(fields.category.value);
@@ -2120,6 +2143,32 @@ async function validateOrderNoIsNew() {
       updateAttributesForCategory(selectedCategory);
       fields[key].value = newValue;
     }
+
+    
+
+   function addNewSheetOption(key) {
+       const label = document.querySelector(`#${key}Wrapper label`)?.textContent || "القيمة";
+       const cleanLabel = clean(label).replace("*", "").trim();
+       const newValue = clean(prompt(`ادخل ${cleanLabel} الجديدة`));
+
+       if (!newValue) return;
+
+       const select = fields[key];
+
+       const exists = Array.from(select.options).some((option) => {
+         return clean(option.value) === newValue;
+       });
+
+       if (!exists) {
+        const option = document.createElement("option");
+        option.value = newValue;
+        option.textContent = newValue;
+        select.appendChild(option);
+       }
+
+      select.value = newValue;
+     }
+    
 
     /*
       قواعد اسم المنتج النهائي:
@@ -2431,7 +2480,8 @@ async function validateOrderNoIsNew() {
         addSheet: fields.addSheet.checked ? "نعم" : "",
         sheetPieces: clean(fields.sheetPieces.value),
         sheetColor: clean(fields.sheetColor.value),
-        sheetColorEnglish: getEnglishColor(fields.sheetColor.value)
+        sheetColorEnglish: getEnglishColor(fields.sheetColor.value),
+        sheetStitches: clean(fields.sheetStitches.value)
       };
     }
 
@@ -2655,6 +2705,12 @@ async function sendData() {
         addNewAttributeOption(button.dataset.addAttribute);
       });
     });
+
+    document.querySelectorAll("[data-add-sheet-option]").forEach((button) => {
+      button.addEventListener("click", () => {
+      addNewSheetOption(button.dataset.addSheetOption);
+   });
+ });
     
     function logout() {
      localStorage.removeItem("supplierLoggedIn");
