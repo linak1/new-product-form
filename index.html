@@ -2103,7 +2103,7 @@ async function validateOrderNoIsNew() {
    
        fields.sheetPieces.innerHTML = fields.pieces.innerHTML;
        fields.sheetColor.innerHTML = fields.color.innerHTML;
-       addOptions(fields.sheetStitches, DATA.attributes.stitches || [], "Select");
+       addOptions(fields.sheetStitches, DATA.attributesByCategory["شراشف"].stitches || [], "Select");
 
     }
 
